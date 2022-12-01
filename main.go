@@ -5,45 +5,35 @@ import (
 	"gl-farming/app/services"
 	"gl-farming/database"
 	"log"
-	"net/http"
+
+	_ "gl-farming/docs"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type AppControllers struct {
-	Locations controllers.LocationController
+	Locations    controllers.LocationController
+	AccountTypes controllers.AccountTypeController
+	Currency     controllers.CurrencyController
 }
 
-type AppServices struct {
-	Locations services.LocationService
+var appControllers = AppControllers{
+	Locations:    controllers.NewLocationController(),
+	AccountTypes: controllers.NewAccountTypeController(),
+	Currency:     controllers.NewCurrencyController(),
 }
-
-var (
-	appControllers = AppControllers{
-		Locations: controllers.NewLocationController(),
-	}
-)
 
 func (ac *AppControllers) InitServices(collections *database.Collections) {
 	ac.Locations.Service = services.NewLocationService(collections.Locations)
+	ac.AccountTypes.Service = services.NewAccountTypeService(collections.AccountTypes)
+	ac.Currency.Service = services.NewCurrencyService(collections.Currency)
 }
 
-// @title Echo Swagger Example API
-// @version 1.0
-// @description This is a sample server server.
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:3000
-// @BasePath /
-// @schemes http
+// @title Gipsyland Farming
+// @version 2.0
+// @description Farming service API description.
 func main() {
 
 	dbCollections, err := database.Init()
@@ -54,10 +44,7 @@ func main() {
 
 	appControllers.InitServices(dbCollections)
 
-	//New Echo instance
 	e := echo.New()
-
-	//Middleware usage
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -70,27 +57,33 @@ func main() {
 func SetRoutes(e *echo.Echo) {
 
 	root := e.Group("/v2")
+	root.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	locations := root.Group("/locations")
 	locations.POST("/create", appControllers.Locations.Create)
-
 	locationsGet := locations.Group("/get")
+	locationsGet.GET("", appControllers.Locations.Get)
 	locationsGet.GET("/all", appControllers.Locations.GetAll)
-
 	locationsDelete := locations.Group("/delete")
+	locationsDelete.DELETE("", appControllers.Locations.Delete)
 	locationsDelete.DELETE("/all", appControllers.Locations.DeleteAll)
-}
 
-// HealthCheck godoc
-// @Summary Show the status of server.
-// @Description get the status of server.
-// @Tags root
-// @Accept */*
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router / [get]
-func HealthCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": "Server is up and running",
-	})
+	accountTypes := root.Group("/accountTypes")
+	accountTypes.POST("/create", appControllers.AccountTypes.Create)
+	accountTypesGet := accountTypes.Group("/get")
+	accountTypesGet.GET("", appControllers.AccountTypes.Get)
+	accountTypesGet.GET("/all", appControllers.AccountTypes.GetAll)
+	accountTypesDelete := accountTypes.Group("/delete")
+	accountTypesDelete.DELETE("", appControllers.AccountTypes.Delete)
+	accountTypesDelete.DELETE("/all", appControllers.AccountTypes.DeleteAll)
+
+	currency := root.Group("/currency")
+	currency.POST("/create", appControllers.Currency.Create)
+	currencyGet := currency.Group("/get")
+	currencyGet.GET("", appControllers.Currency.Get)
+	currencyGet.GET("/all", appControllers.Currency.GetAll)
+	currencyDelete := currency.Group("/delete")
+	currencyDelete.DELETE("", appControllers.Currency.Delete)
+	currencyDelete.DELETE("/all", appControllers.Currency.DeleteAll)
+
 }

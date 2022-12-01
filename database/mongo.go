@@ -10,7 +10,9 @@ import (
 )
 
 type Collections struct {
-	Locations *mongo.Collection
+	Locations    *mongo.Collection
+	AccountTypes *mongo.Collection
+	Currency     *mongo.Collection
 }
 
 func Init() (*Collections, error) {
@@ -22,7 +24,9 @@ func Init() (*Collections, error) {
 	}
 
 	var Collections = Collections{
-		Locations: client.Database("gypsyland").Collection("locations"),
+		Locations:    client.Database("gypsyland").Collection("locations"),
+		AccountTypes: client.Database("gypsyland").Collection("accountTypes"),
+		Currency:     client.Database("gypsyland").Collection("currency"),
 	}
 
 	return &Collections, nil

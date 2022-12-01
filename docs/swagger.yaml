@@ -1,0 +1,317 @@
+definitions:
+  models.AccountType:
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Currency:
+    properties:
+      _id:
+        type: string
+      iso:
+        type: string
+      name:
+        type: string
+      symbol:
+        type: string
+    type: object
+  models.Location:
+    properties:
+      _id:
+        type: string
+      iso:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Farming service API description.
+  title: Gipsyland Farming
+  version: "2.0"
+paths:
+  /v2/accountTypes/create:
+    post:
+      consumes:
+      - application/json
+      description: creates account type
+      parameters:
+      - description: account type body json
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccountType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create account type
+      tags:
+      - Account types
+  /v2/accountTypes/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes account type by id
+      parameters:
+      - description: account type id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete account type
+      tags:
+      - Account types
+  /v2/accountTypes/delete/all:
+    delete:
+      consumes:
+      - application/json
+      description: deletes all account types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete all account types
+      tags:
+      - Account types
+  /v2/accountTypes/get:
+    get:
+      consumes:
+      - application/json
+      description: get account types by id
+      parameters:
+      - description: account type id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AccountType'
+      summary: Get account types
+      tags:
+      - Account types
+  /v2/accountTypes/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all account types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccountType'
+            type: array
+      summary: Get all account types
+      tags:
+      - Account types
+  /v2/currency/create:
+    post:
+      consumes:
+      - application/json
+      description: creates currency
+      parameters:
+      - description: currency body json
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/models.Currency'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create currency
+      tags:
+      - Currency
+  /v2/currency/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes currency by id
+      parameters:
+      - description: currency id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete currency
+      tags:
+      - Currency
+  /v2/currency/delete/all:
+    delete:
+      consumes:
+      - application/json
+      description: deletes all currency
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete all currency
+      tags:
+      - Currency
+  /v2/currency/get:
+    get:
+      consumes:
+      - application/json
+      description: get currency by id
+      parameters:
+      - description: currency id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Currency'
+      summary: Get currency
+      tags:
+      - Currency
+  /v2/currency/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all currency
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Currency'
+            type: array
+      summary: Get all currency
+      tags:
+      - Currency
+  /v2/locations/create:
+    post:
+      consumes:
+      - application/json
+      description: creates location
+      parameters:
+      - description: location body json
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/models.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create location
+      tags:
+      - Locations
+  /v2/locations/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes location by id
+      parameters:
+      - description: location id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete location
+      tags:
+      - Locations
+  /v2/locations/delete/all:
+    delete:
+      consumes:
+      - application/json
+      description: deletes all locations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete all locations
+      tags:
+      - Locations
+  /v2/locations/get:
+    get:
+      consumes:
+      - application/json
+      description: get location by id
+      parameters:
+      - description: location id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Location'
+      summary: Get location
+      tags:
+      - Locations
+  /v2/locations/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all locations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Location'
+            type: array
+      summary: Get all locations
+      tags:
+      - Locations
+swagger: "2.0"

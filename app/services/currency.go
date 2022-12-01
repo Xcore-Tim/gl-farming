@@ -10,51 +10,52 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type LocationService interface {
-	Create(echo.Context, models.Location) error
+type CurrencyService interface {
+	Create(echo.Context, models.Currency) error
 	Update() error
 	Delete(echo.Context, string) error
-	Get(echo.Context, string) (models.Location, error)
-	GetAll(echo.Context, *[]models.Location) error
+	Get(echo.Context, string) (models.Currency, error)
+	GetAll(echo.Context, *[]models.Currency) error
 	DeleteAll(echo.Context) (int, error)
 }
 
-type LocationsServiceImpl struct {
+type CurrencyServiceImpl struct {
 	collection *mongo.Collection
 }
 
-func NewLocationService(collection *mongo.Collection) LocationService {
-	return &LocationsServiceImpl{
+func NewCurrencyService(collection *mongo.Collection) CurrencyService {
+	return &CurrencyServiceImpl{
 		collection: collection,
 	}
 }
 
-func (s LocationsServiceImpl) Create(c echo.Context, location models.Location) error {
+func (s CurrencyServiceImpl) Create(c echo.Context, currency models.Currency) error {
 
 	filter := bson.D{
 		bson.E{Key: "$and", Value: bson.A{
 			bson.D{
-				bson.E{Key: "name", Value: location.Name},
-				bson.E{Key: "iso", Value: location.ISO},
+				bson.E{Key: "name", Value: currency.Name},
+				bson.E{Key: "iso", Value: currency.ISO},
+				bson.E{Key: "symbol", Value: currency.Symbol},
 			}}},
 	}
 
 	if result := s.collection.FindOne(c.Request().Context(), filter); result.Err() == nil {
-		return errors.New("such location already exists")
+		return errors.New("such account type already exists")
 	}
 
-	if _, err := s.collection.InsertOne(c.Request().Context(), location); err != nil {
+	if _, err := s.collection.InsertOne(c.Request().Context(), currency); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s LocationsServiceImpl) Update() error {
+func (s CurrencyServiceImpl) Update() error {
 	return nil
 }
 
-func (s LocationsServiceImpl) Delete(c echo.Context, id string) error {
+func (s CurrencyServiceImpl) Delete(c echo.Context, id string) error {
 
 	oid, err := primitive.ObjectIDFromHex(id)
 
@@ -70,34 +71,34 @@ func (s LocationsServiceImpl) Delete(c echo.Context, id string) error {
 	}
 
 	if result.DeletedCount != 1 {
-		return errors.New("found no location with provided id")
+		return errors.New("found no account type with provided id")
 	}
 
 	return nil
 }
 
-func (s LocationsServiceImpl) Get(c echo.Context, id string) (models.Location, error) {
+func (s CurrencyServiceImpl) Get(c echo.Context, id string) (models.Currency, error) {
 
-	var location models.Location
+	var currency models.Currency
 
 	oid, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		return location, err
+		return currency, err
 	}
 
 	filter := bson.D{bson.E{Key: "_id", Value: oid}}
 	result := s.collection.FindOne(c.Request().Context(), filter)
 
-	if err := result.Decode(&location); err != nil {
-		return location, err
+	if err := result.Decode(&currency); err != nil {
+		return currency, err
 	}
 
-	location.ConvertID()
-	return location, err
+	currency.ConvertID()
+	return currency, err
 }
 
-func (s LocationsServiceImpl) GetAll(c echo.Context, locations *[]models.Location) error {
+func (s CurrencyServiceImpl) GetAll(c echo.Context, currencyList *[]models.Currency) error {
 
 	cursor, err := s.collection.Find(c.Request().Context(), bson.D{{}})
 
@@ -108,13 +109,13 @@ func (s LocationsServiceImpl) GetAll(c echo.Context, locations *[]models.Locatio
 	defer cursor.Close(c.Request().Context())
 
 	for cursor.Next(c.Request().Context()) {
-		var location models.Location
-		err := cursor.Decode(&location)
+		var currency models.Currency
+		err := cursor.Decode(&currency)
 		if err != nil {
 			return err
 		}
-		location.ConvertID()
-		*locations = append(*locations, location)
+		currency.ConvertID()
+		*currencyList = append(*currencyList, currency)
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -124,7 +125,7 @@ func (s LocationsServiceImpl) GetAll(c echo.Context, locations *[]models.Locatio
 	return nil
 }
 
-func (s LocationsServiceImpl) DeleteAll(c echo.Context) (int, error) {
+func (s CurrencyServiceImpl) DeleteAll(c echo.Context) (int, error) {
 
 	filter := bson.D{bson.E{}}
 	result, err := s.collection.DeleteMany(c.Request().Context(), filter)

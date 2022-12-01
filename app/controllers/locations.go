@@ -17,6 +17,15 @@ func NewLocationController() LocationController {
 	return LocationController{}
 }
 
+// Create godoc
+// @Summary      Create location
+// @Description  creates location
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Param        id    body     models.Location  true  "location body json"
+// @Success      200  {string}   string
+// @Router       /v2/locations/create [post]
 func (ctrl LocationController) Create(c echo.Context) error {
 
 	var location models.Location
@@ -25,27 +34,69 @@ func (ctrl LocationController) Create(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	locationDTO := location.ToDTO()
-
-	if err := ctrl.Service.Create(c, locationDTO); err != nil {
+	if err := ctrl.Service.Create(c, location); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, location)
+	return c.String(http.StatusOK, "success")
 }
 
 func (ctrl LocationController) Update(c echo.Context) {
 }
 
-func (ctrl LocationController) Delete(c echo.Context) {
+// Get godoc
+// @Summary      Delete location
+// @Description  Deletes location by id
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Param        id    query     string  true  "location id"
+// @Success      200  {string}  string
+// @Router       /v2/locations/delete [delete]
+func (ctrl LocationController) Delete(c echo.Context) error {
+
+	id := c.QueryParam("id")
+
+	if err := ctrl.Service.Delete(c, id); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	return c.String(http.StatusOK, "successfuly deleted location")
 }
 
-func (ctrl LocationController) Get(c echo.Context) {
+// Get godoc
+// @Summary      Get location
+// @Description  get location by id
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Param        id    query     string  true  "location id"
+// @Success      200  {object}   models.Location
+// @Router       /v2/locations/get [get]
+func (ctrl LocationController) Get(c echo.Context) error {
+
+	id := c.QueryParam("id")
+
+	location, err := ctrl.Service.Get(c, id)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, location)
 }
 
+// GetAll godoc
+// @Summary      Get all locations
+// @Description  returns all locations
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  models.Location
+// @Router       /v2/locations/get/all [get]
 func (ctrl LocationController) GetAll(c echo.Context) error {
 
-	var locations []models.LocationDTO
+	var locations []models.Location
 
 	if err := ctrl.Service.GetAll(c, &locations); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -56,9 +107,16 @@ func (ctrl LocationController) GetAll(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, locations)
-
 }
 
+// DeleteAll godoc
+// @Summary      Delete all locations
+// @Description  deletes all locations
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Success      200
+// @Router       /v2/locations/delete/all [delete]
 func (ctrl LocationController) DeleteAll(c echo.Context) error {
 
 	count, err := ctrl.Service.DeleteAll(c)
