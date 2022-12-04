@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+
 	"gl-farming/app/models"
 
 	"github.com/labstack/echo/v4"
@@ -103,8 +104,7 @@ func (s AccountTypeServiceImpl) GetAll(c echo.Context, accountTypes *[]models.Ac
 
 	for cursor.Next(c.Request().Context()) {
 		var accountType models.AccountType
-		err := cursor.Decode(&accountType)
-		if err != nil {
+		if err := cursor.Decode(&accountType); err != nil {
 			return err
 		}
 		accountType.ConvertID()

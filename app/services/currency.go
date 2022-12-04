@@ -15,8 +15,11 @@ type CurrencyService interface {
 	Update() error
 	Delete(echo.Context, string) error
 	Get(echo.Context, string) (models.Currency, error)
+	GetByISO(echo.Context, string) (models.Currency, error)
 	GetAll(echo.Context, *[]models.Currency) error
 	DeleteAll(echo.Context) (int, error)
+
+	GetCurrencyRates() (map[string]float64, error)
 }
 
 type CurrencyServiceImpl struct {
@@ -96,6 +99,21 @@ func (s CurrencyServiceImpl) Get(c echo.Context, id string) (models.Currency, er
 
 	currency.ConvertID()
 	return currency, err
+}
+
+func (s CurrencyServiceImpl) GetByISO(c echo.Context, iso string) (models.Currency, error) {
+
+	var currency models.Currency
+
+	filter := bson.D{bson.E{Key: "iso", Value: iso}}
+	result := s.collection.FindOne(c.Request().Context(), filter)
+
+	if err := result.Decode(&currency); err != nil {
+		return currency, err
+	}
+
+	currency.ConvertID()
+	return currency, nil
 }
 
 func (s CurrencyServiceImpl) GetAll(c echo.Context, currencyList *[]models.Currency) error {

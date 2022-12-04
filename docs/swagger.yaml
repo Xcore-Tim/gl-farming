@@ -1,9 +1,113 @@
 definitions:
+  models.AccountRequest:
+    properties:
+      _id:
+        type: string
+      baseCurrency:
+        $ref: '#/definitions/models.Currency'
+      basePrice:
+        type: number
+      baseRate:
+        type: number
+      baseTotal:
+        type: number
+      buyer:
+        $ref: '#/definitions/models.Employee'
+      cancellationCause:
+        type: string
+      cancelledBy:
+        $ref: '#/definitions/models.Employee'
+      completedBy:
+        $ref: '#/definitions/models.Employee'
+      crossRate:
+        type: number
+      currency:
+        $ref: '#/definitions/models.Currency'
+      dateCancelled:
+        type: integer
+      dateCompleted:
+        type: integer
+      dateCreated:
+        type: integer
+      dateReturned:
+        type: integer
+      dateTaken:
+        type: integer
+      dateUpdated:
+        type: integer
+      description:
+        type: string
+      farmer:
+        $ref: '#/definitions/models.Employee'
+      fileName:
+        type: string
+      location:
+        $ref: '#/definitions/models.Location'
+      price:
+        type: number
+      quantity:
+        type: integer
+      rate:
+        type: number
+      returnedBy:
+        $ref: '#/definitions/models.Employee'
+      status:
+        type: integer
+      takenBy:
+        $ref: '#/definitions/models.Employee'
+      team:
+        $ref: '#/definitions/models.Team'
+      total:
+        type: number
+      type:
+        $ref: '#/definitions/models.AccountType'
+      updatedBy:
+        $ref: '#/definitions/models.Employee'
+      valid:
+        type: integer
+    type: object
   models.AccountType:
     properties:
       _id:
         type: string
       name:
+        type: string
+    type: object
+  models.CancelAccountRequest:
+    properties:
+      cancellationCause:
+        type: string
+      cancelledBy:
+        $ref: '#/definitions/models.Employee'
+      dateCancelled:
+        type: integer
+      requestID:
+        type: string
+    type: object
+  models.CompleteAccountRequest:
+    properties:
+      currencyID:
+        type: string
+      price:
+        type: number
+      requestID:
+        type: string
+      valid:
+        type: integer
+    type: object
+  models.CreateAccountRequest:
+    properties:
+      currencyID:
+        type: string
+      description:
+        type: string
+      locationID:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      typeID:
         type: string
     type: object
   models.Currency:
@@ -17,6 +121,15 @@ definitions:
       symbol:
         type: string
     type: object
+  models.Employee:
+    properties:
+      _id:
+        type: integer
+      fullName:
+        type: string
+      role:
+        type: integer
+    type: object
   models.Location:
     properties:
       _id:
@@ -26,12 +139,172 @@ definitions:
       name:
         type: string
     type: object
+  models.Team:
+    properties:
+      id:
+        type: integer
+      teamlead:
+        $ref: '#/definitions/models.Employee'
+    type: object
+  models.UpdateAccountRequest:
+    properties:
+      currencyID:
+        type: string
+      description:
+        type: string
+      locationID:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      requestID:
+        type: string
+      typeID:
+        type: string
+    type: object
 info:
   contact: {}
   description: Farming service API description.
   title: Gipsyland Farming
   version: "2.0"
 paths:
+  /v2/accountRequests/cancel:
+    put:
+      consumes:
+      - application/json
+      description: cancels account request
+      parameters:
+      - description: cancel request body info
+        in: body
+        name: cancelRequest
+        schema:
+          $ref: '#/definitions/models.CancelAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Cancel account request
+      tags:
+      - Account requests
+  /v2/accountRequests/complete:
+    put:
+      consumes:
+      - application/json
+      description: Completes account request
+      parameters:
+      - description: complete request body
+        in: body
+        name: updateRequest
+        schema:
+          $ref: '#/definitions/models.CompleteAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Complete account request
+      tags:
+      - Account requests
+  /v2/accountRequests/create:
+    post:
+      consumes:
+      - application/json
+      description: creates new account request
+      parameters:
+      - description: create request body info
+        in: body
+        name: createRequest
+        schema:
+          $ref: '#/definitions/models.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccountRequest'
+            type: array
+      summary: Create account request
+      tags:
+      - Account requests
+  /v2/accountRequests/delete/all:
+    delete:
+      consumes:
+      - application/json
+      description: deletes all account requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete all account requests
+      tags:
+      - Account requests
+  /v2/accountRequests/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all account requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccountRequest'
+            type: array
+      summary: Get all account requests
+      tags:
+      - Account requests
+  /v2/accountRequests/take:
+    put:
+      consumes:
+      - application/json
+      description: Takes account request in work
+      parameters:
+      - description: taken request id
+        in: query
+        name: requestID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Take account request in work
+      tags:
+      - Account requests
+  /v2/accountRequests/update:
+    put:
+      consumes:
+      - application/json
+      description: Updates account request
+      parameters:
+      - description: update request body
+        in: body
+        name: updateRequest
+        schema:
+          $ref: '#/definitions/models.UpdateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update account request
+      tags:
+      - Account requests
   /v2/accountTypes/create:
     post:
       consumes:

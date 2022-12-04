@@ -13,3 +13,14 @@ type Currency struct {
 func (c *Currency) ConvertID() {
 	c.ID = c.MongoID.Hex()
 }
+
+type Valute struct {
+	NumCode  string `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Name     string `xml:"Name"`
+	Value    string `xml:"Value"`
+}
+
+type ValuteRate struct {
+	ValuteList []Valute `xml:"Valute"`
+}

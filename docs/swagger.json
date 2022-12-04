@@ -7,6 +7,218 @@
         "version": "2.0"
     },
     "paths": {
+        "/v2/accountRequests/cancel": {
+            "put": {
+                "description": "cancels account request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Cancel account request",
+                "parameters": [
+                    {
+                        "description": "cancel request body info",
+                        "name": "cancelRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.CancelAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/complete": {
+            "put": {
+                "description": "Completes account request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Complete account request",
+                "parameters": [
+                    {
+                        "description": "complete request body",
+                        "name": "updateRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.CompleteAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/create": {
+            "post": {
+                "description": "creates new account request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Create account request",
+                "parameters": [
+                    {
+                        "description": "create request body info",
+                        "name": "createRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccountRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/delete/all": {
+            "delete": {
+                "description": "deletes all account requests",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Delete all account requests",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/get/all": {
+            "get": {
+                "description": "returns all account requests",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Get all account requests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccountRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/take": {
+            "put": {
+                "description": "Takes account request in work",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Take account request in work",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "taken request id",
+                        "name": "requestID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/accountRequests/update": {
+            "put": {
+                "description": "Updates account request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account requests"
+                ],
+                "summary": "Update account request",
+                "parameters": [
+                    {
+                        "description": "update request body",
+                        "name": "updateRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/accountTypes/create": {
             "post": {
                 "description": "creates account type",
@@ -441,6 +653,107 @@
         }
     },
     "definitions": {
+        "models.AccountRequest": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "baseCurrency": {
+                    "$ref": "#/definitions/models.Currency"
+                },
+                "basePrice": {
+                    "type": "number"
+                },
+                "baseRate": {
+                    "type": "number"
+                },
+                "baseTotal": {
+                    "type": "number"
+                },
+                "buyer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "cancellationCause": {
+                    "type": "string"
+                },
+                "cancelledBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "completedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "crossRate": {
+                    "type": "number"
+                },
+                "currency": {
+                    "$ref": "#/definitions/models.Currency"
+                },
+                "dateCancelled": {
+                    "type": "integer"
+                },
+                "dateCompleted": {
+                    "type": "integer"
+                },
+                "dateCreated": {
+                    "type": "integer"
+                },
+                "dateReturned": {
+                    "type": "integer"
+                },
+                "dateTaken": {
+                    "type": "integer"
+                },
+                "dateUpdated": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/models.Location"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "rate": {
+                    "type": "number"
+                },
+                "returnedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "takenBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.AccountType"
+                },
+                "updatedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "valid": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.AccountType": {
             "type": "object",
             "properties": {
@@ -448,6 +761,63 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CancelAccountRequest": {
+            "type": "object",
+            "properties": {
+                "cancellationCause": {
+                    "type": "string"
+                },
+                "cancelledBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "dateCancelled": {
+                    "type": "integer"
+                },
+                "requestID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CompleteAccountRequest": {
+            "type": "object",
+            "properties": {
+                "currencyID": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CreateAccountRequest": {
+            "type": "object",
+            "properties": {
+                "currencyID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "locationID": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "typeID": {
                     "type": "string"
                 }
             }
@@ -469,6 +839,20 @@
                 }
             }
         },
+        "models.Employee": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "integer"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Location": {
             "type": "object",
             "properties": {
@@ -479,6 +863,43 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Team": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "teamlead": {
+                    "$ref": "#/definitions/models.Employee"
+                }
+            }
+        },
+        "models.UpdateAccountRequest": {
+            "type": "object",
+            "properties": {
+                "currencyID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "locationID": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "requestID": {
+                    "type": "string"
+                },
+                "typeID": {
                     "type": "string"
                 }
             }
