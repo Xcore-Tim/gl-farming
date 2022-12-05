@@ -41,7 +41,27 @@ func (ctrl LocationController) Create(c echo.Context) error {
 	return c.String(http.StatusOK, "success")
 }
 
-func (ctrl LocationController) Update(c echo.Context) {
+// Get godoc
+// @Summary      Update location
+// @Description  Updates location by id
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Param        id    body     models.Location  true  "location body"
+// @Success      200  {string}  string
+// @Router       /v2/locations/update [patch]
+func (ctrl LocationController) Update(c echo.Context) error {
+	var location models.Location
+
+	if err := c.Bind(&location); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	location.ConvertToMongoID()
+
+	if err := ctrl.Service.Update(c, &location); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	return c.String(http.StatusBadRequest, "success")
 }
 
 // Get godoc

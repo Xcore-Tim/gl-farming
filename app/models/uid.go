@@ -13,3 +13,8 @@ type UID struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 }
+
+type UserCredentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

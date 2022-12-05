@@ -5,6 +5,7 @@ import (
 	"gl-farming/app/models"
 
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -12,6 +13,8 @@ import (
 type TableService interface {
 	Get(echo.Context, *models.TableDataRequest) error
 	GetAll(echo.Context, *models.TableDataRequest) error
+	AggregateDataByUID(echo.Context, primitive.D, primitive.D) (*[]models.EmployeePipeline, error)
+	AggregateDataByTeam(echo.Context, primitive.D, primitive.D) (*[]models.TeamPipiline, error)
 }
 
 type TableServiceServiceImpl struct {
@@ -36,9 +39,7 @@ func (s TableServiceServiceImpl) Get(c echo.Context, tableDataRequest *models.Ta
 		if err := cursor.Decode(&accountRequest); err != nil {
 			return err
 		}
-
 		tableDataRequest.DataSlice = append(tableDataRequest.DataSlice, accountRequest)
-
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -76,4 +77,54 @@ func (s TableServiceServiceImpl) GetAll(c echo.Context, tableDataRequest *models
 	}
 
 	return nil
+}
+
+func (s TableServiceServiceImpl) AggregateDataByUID(c echo.Context, matchStage primitive.D, groupStage primitive.D) (*[]models.EmployeePipeline, error) {
+
+	var pipelineResult []models.EmployeePipeline
+
+	cursor, err := s.collection.Aggregate(c.Request().Context(), mongo.Pipeline{matchStage, groupStage})
+	if err != nil {
+		return &pipelineResult, err
+	}
+
+	for cursor.Next(c.Request().Context()) {
+		var tableData models.EmployeePipeline
+		if err := cursor.Decode(&tableData); err != nil {
+			return &pipelineResult, err
+		}
+
+		pipelineResult = append(pipelineResult, tableData)
+	}
+
+	if cursor.Err() != nil {
+		return &pipelineResult, err
+	}
+
+	return &pipelineResult, err
+}
+
+func (s TableServiceServiceImpl) AggregateDataByTeam(c echo.Context, matchStage primitive.D, groupStage primitive.D) (*[]models.TeamPipiline, error) {
+
+	var pipelineResult []models.TeamPipiline
+
+	cursor, err := s.collection.Aggregate(c.Request().Context(), mongo.Pipeline{matchStage, groupStage})
+	if err != nil {
+		return &pipelineResult, err
+	}
+
+	for cursor.Next(c.Request().Context()) {
+		var tableData models.TeamPipiline
+		if err := cursor.Decode(&tableData); err != nil {
+			return &pipelineResult, err
+		}
+
+		pipelineResult = append(pipelineResult, tableData)
+	}
+
+	if cursor.Err() != nil {
+		return &pipelineResult, err
+	}
+
+	return &pipelineResult, err
 }

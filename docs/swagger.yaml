@@ -1,4 +1,11 @@
 definitions:
+  models.AccessRequest:
+    properties:
+      farmer:
+        $ref: '#/definitions/models.Employee'
+      teamID:
+        type: integer
+    type: object
   models.AccountRequest:
     properties:
       _id:
@@ -77,10 +84,6 @@ definitions:
     properties:
       cancellationCause:
         type: string
-      cancelledBy:
-        $ref: '#/definitions/models.Employee'
-      dateCancelled:
-        type: integer
       requestID:
         type: string
     type: object
@@ -130,6 +133,37 @@ definitions:
       role:
         type: integer
     type: object
+  models.EmployeePipeline:
+    properties:
+      price:
+        type: number
+      quantity:
+        type: integer
+      total:
+        type: number
+      uid:
+        $ref: '#/definitions/models.Employee'
+      valid:
+        type: integer
+    type: object
+  models.FarmerAccess:
+    properties:
+      _id:
+        type: string
+      farmer:
+        $ref: '#/definitions/models.Employee'
+      team:
+        type: integer
+    type: object
+  models.FarmerAccessList:
+    properties:
+      farmer:
+        $ref: '#/definitions/models.Employee'
+      teams:
+        items:
+          type: integer
+        type: array
+    type: object
   models.Location:
     properties:
       _id:
@@ -137,6 +171,85 @@ definitions:
       iso:
         type: string
       name:
+        type: string
+    type: object
+  models.ReturnAccountRequest:
+    properties:
+      _:
+        $ref: '#/definitions/models.Employee'
+      requestID:
+        type: string
+    type: object
+  models.TableData:
+    properties:
+      _id:
+        type: string
+      baseCurrency:
+        $ref: '#/definitions/models.Currency'
+      basePrice:
+        type: number
+      baseRate:
+        type: number
+      baseTotal:
+        type: number
+      buyer:
+        $ref: '#/definitions/models.Employee'
+      cancellationCause:
+        type: string
+      cancelledBy:
+        $ref: '#/definitions/models.Employee'
+      completedBy:
+        $ref: '#/definitions/models.Employee'
+      crossRate:
+        type: number
+      currency:
+        $ref: '#/definitions/models.Currency'
+      dateCancelled:
+        type: integer
+      dateCompleted:
+        type: integer
+      dateCreated:
+        type: integer
+      dateReturned:
+        type: integer
+      dateTaken:
+        type: integer
+      dateUpdated:
+        type: integer
+      description:
+        type: string
+      farmer:
+        $ref: '#/definitions/models.Employee'
+      fileName:
+        type: string
+      location:
+        $ref: '#/definitions/models.Location'
+      price:
+        type: number
+      quantity:
+        type: integer
+      rate:
+        type: number
+      returnedBy:
+        $ref: '#/definitions/models.Employee'
+      status:
+        type: integer
+      takenBy:
+        $ref: '#/definitions/models.Employee'
+      team:
+        $ref: '#/definitions/models.Team'
+      total:
+        type: number
+      type:
+        $ref: '#/definitions/models.AccountType'
+      updatedBy:
+        $ref: '#/definitions/models.Employee'
+      valid:
+        type: integer
+    type: object
+  models.TakeAccountRequest:
+    properties:
+      requestID:
         type: string
     type: object
   models.Team:
@@ -247,21 +360,26 @@ paths:
       summary: Delete all account requests
       tags:
       - Account requests
-  /v2/accountRequests/get/all:
-    get:
+  /v2/accountRequests/return:
+    put:
       consumes:
       - application/json
-      description: returns all account requests
+      description: Returns account request
+      parameters:
+      - description: request id
+        in: body
+        name: returnRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReturnAccountRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.AccountRequest'
-            type: array
-      summary: Get all account requests
+            $ref: '#/definitions/models.AccountRequest'
+      summary: Return account request
       tags:
       - Account requests
   /v2/accountRequests/take:
@@ -270,15 +388,16 @@ paths:
       - application/json
       description: Takes account request in work
       parameters:
-      - description: taken request id
-        in: query
-        name: requestID
-        type: string
+      - description: take request body
+        in: body
+        name: takeRequest
+        schema:
+          $ref: '#/definitions/models.TakeAccountRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: success
           schema:
             type: string
       summary: Take account request in work
@@ -493,6 +612,103 @@ paths:
       summary: Get all currency
       tags:
       - Currency
+  /v2/farmerAccess/add:
+    post:
+      consumes:
+      - application/json
+      description: adds access to farmer
+      parameters:
+      - description: farmer uid
+        in: body
+        name: farmer
+        schema:
+          $ref: '#/definitions/models.AccessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccessRequest'
+            type: array
+      summary: Add access
+      tags:
+      - Farmer Access
+  /v2/farmerAccess/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all accesses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FarmerAccess'
+            type: array
+      summary: Get all accesses
+      tags:
+      - Table data
+  /v2/farmerAccess/get/farmers:
+    get:
+      consumes:
+      - application/json
+      description: returns all farmers accesses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FarmerAccessList'
+            type: array
+      summary: Get farmer access
+      tags:
+      - Farmer Access
+  /v2/farmerAccess/get/teams:
+    get:
+      consumes:
+      - application/json
+      description: returns all teams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+      summary: Get teams
+      tags:
+      - Farmer Access
+  /v2/farmerAccess/revoke:
+    delete:
+      consumes:
+      - application/json
+      description: revokes access to farmer
+      parameters:
+      - description: farmer uid
+        in: body
+        name: accessRequest
+        schema:
+          $ref: '#/definitions/models.AccessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccessRequest'
+            type: array
+      summary: revoke access
+      tags:
+      - Farmer Access
   /v2/locations/create:
     post:
       consumes:
@@ -587,4 +803,155 @@ paths:
       summary: Get all locations
       tags:
       - Locations
+  /v2/locations/update:
+    patch:
+      consumes:
+      - application/json
+      description: Updates location by id
+      parameters:
+      - description: location body
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/models.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update location
+      tags:
+      - Locations
+  /v2/tableData/aggregate/buyers:
+    get:
+      consumes:
+      - application/json
+      description: returns buyer list
+      parameters:
+      - description: period start date
+        in: query
+        name: startDate
+        type: string
+      - description: period end date
+        in: query
+        name: endDate
+        type: string
+      - description: teamlead id
+        in: query
+        name: teamleadID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EmployeePipeline'
+            type: array
+      summary: Get buyer list
+      tags:
+      - Table data
+  /v2/tableData/aggregate/farmers:
+    get:
+      consumes:
+      - application/json
+      description: returns farmer list
+      parameters:
+      - description: period start date
+        in: query
+        name: startDate
+        type: string
+      - description: period end date
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EmployeePipeline'
+            type: array
+      summary: Get farmer list
+      tags:
+      - Table data
+  /v2/tableData/aggregate/teamleads:
+    get:
+      consumes:
+      - application/json
+      description: returns team list
+      parameters:
+      - description: period start date
+        in: query
+        name: startDate
+        type: string
+      - description: period end date
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EmployeePipeline'
+            type: array
+      summary: Get team list
+      tags:
+      - Table data
+  /v2/tableData/get:
+    get:
+      consumes:
+      - application/json
+      description: returns all account requests by period and employee
+      parameters:
+      - description: period start date
+        in: query
+        name: startDate
+        type: string
+      - description: period end date
+        in: query
+        name: endDate
+        type: string
+      - description: status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TableData'
+            type: array
+      summary: Get account requests by period and employee
+      tags:
+      - Table data
+  /v2/tableData/get/all:
+    get:
+      consumes:
+      - application/json
+      description: returns all account requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccountRequest'
+            type: array
+      summary: Get all account requests
+      tags:
+      - Table data
 swagger: "2.0"

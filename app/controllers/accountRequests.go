@@ -127,21 +127,25 @@ func (ctrl AccountRequestController) Cancel(c echo.Context) error {
 // @Tags         Account requests
 // @Accept       json
 // @Produce      json
-// @Param        requestID    query     string  false  "taken request id"
-// @Success      200  {string}  string
+// @Param        takeRequest    body     models.TakeAccountRequest  false  "take request body"
+// @Success      200  {string}  "success"
 // @Router       /v2/accountRequests/take [put]
 func (ctrl AccountRequestController) Take(c echo.Context) error {
 
-	var farmer models.Employee
+	var takeRequest models.TakeAccountRequest
+
+	if err := c.Bind(&takeRequest); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
 
 	uid, err := ctrl.Services.UID.GetUID(c)
-	farmer.FillWithUID(&uid)
+	takeRequest.Farmer.FillWithUID(&uid)
 
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	ctrl.Services.AccountRequests.Take(c, &farmer)
+	ctrl.Services.AccountRequests.Take(c, &takeRequest)
 	return c.String(http.StatusOK, "success")
 }
 
@@ -240,10 +244,11 @@ func (ctrl AccountRequestController) Complete(c echo.Context) error {
 
 	accountRequest.Valid = completeAccountRequest.Valid
 
-	if accountRequest.Price != completeAccountRequest.Price || completeAccountRequest.Price != 0 {
+	if accountRequest.Price != completeAccountRequest.Price && completeAccountRequest.Price != 0 {
 		accountRequest.Price = completeAccountRequest.Price
 		accountRequest.Total = helper.CalculateTotal(accountRequest.Quantity, accountRequest.Price)
-		if accountRequest.Currency.ID != completeAccountRequest.CurrencyID {
+
+		if accountRequest.Currency.ID != completeAccountRequest.CurrencyID && completeAccountRequest.CurrencyID != "" {
 			if accountRequest.Currency, err = ctrl.Services.Currency.Get(c, completeAccountRequest.CurrencyID); err != nil {
 				return c.String(http.StatusBadRequest, "bad currency")
 			}
@@ -261,24 +266,45 @@ func (ctrl AccountRequestController) Complete(c echo.Context) error {
 	return c.JSON(http.StatusOK, "success")
 }
 
+// Return godoc
+// @Summary      Return account request
+// @Description  Returns account request
+// @Tags         Account requests
+// @Accept       json
+// @Produce      json
+// @Param        returnRequest    body	models.ReturnAccountRequest  true  "request id"
+// @Success      200  {object}  models.AccountRequest
+// @Router       /v2/accountRequests/return [put]
 func (ctrl AccountRequestController) Return(c echo.Context) error {
 
 	var returnAccountRequest models.ReturnAccountRequest
+
+	if err := c.Bind(&returnAccountRequest); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
 	uid, err := ctrl.Services.UID.GetUID(c)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	returnAccountRequest.CancelledBy.FillWithUID(&uid)
-
-	if returnAccountRequest.RequestID, err = primitive.ObjectIDFromHex(c.QueryParam("requestID")); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
+	returnAccountRequest.ReturnedBy.FillWithUID(&uid)
 
 	if err := ctrl.Services.AccountRequests.Return(c, &returnAccountRequest); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	return c.String(http.StatusOK, "success")
+}
+
+func (ctrl AccountRequestController) Get(c echo.Context) error {
+	requestID := c.QueryParam("requestID")
+
+	accountRequest, err := ctrl.Services.AccountRequests.Get(c, requestID)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, accountRequest)
 }
 
 // DeleteAll godoc

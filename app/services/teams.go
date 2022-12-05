@@ -19,9 +19,9 @@ type TeamService interface {
 	GetTeams(*string) ([]int, error)
 	GetFarmers(string) ([]models.Employee, error)
 
-	AddAccess(echo.Context, *models.FarmerAccess) error
-	RevokeAccess(echo.Context, *models.FarmerAccess) error
-	UpdateAccess(echo.Context, *models.FarmerAccess) error
+	AddAccess(echo.Context, *models.AccessRequest) error
+	RevokeAccess(echo.Context, *models.AccessRequest) error
+	UpdateAccess(echo.Context, *models.AccessRequest) error
 
 	GetAccess(echo.Context, *models.FarmerAccessList) ([]int, error)
 	GetAllAccesses(echo.Context, *[]models.FarmerAccess) error

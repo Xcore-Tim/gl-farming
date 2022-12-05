@@ -1,16 +1,22 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"gl-farming/app/controllers"
 	"gl-farming/app/services"
 	"gl-farming/database"
 	"log"
+	"net/http"
 
 	_ "gl-farming/docs"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 // @title Gipsyland Farming
@@ -18,19 +24,45 @@ import (
 // @description Farming service API description.
 func main() {
 
-	dbCollections, err := database.Init()
+	ctx := context.TODO()
+
+	connectionAddress := "mongodb://localhost:27017"
+	mongoConnection := options.Client().ApplyURI(connectionAddress)
+	client, err := mongo.Connect(ctx, mongoConnection)
+	defer client.Disconnect(ctx)
 
 	if err != nil {
-		log.Fatal("asdasd")
+		log.Fatal(err.Error())
+	}
+
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatal(err.Error())
+	}
+
+	fmt.Println("Connection established")
+
+	var Collections = database.Collections{
+		AccountRequests: client.Database("gypsyland").Collection("accountRequests"),
+		AccountTypes:    client.Database("gypsyland").Collection("accountTypes"),
+		Locations:       client.Database("gypsyland").Collection("locations"),
+		Currency:        client.Database("gypsyland").Collection("currency"),
+		FarmerAccess:    client.Database("gypsyland").Collection("farmerAccess"),
 	}
 
 	var appServices services.AppServices
-	appServices.Init(dbCollections)
+	appServices.Init(&Collections)
 	var appControllers = controllers.NewAppControllers(appServices)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+		AllowHeaders:     []string{"*"},
+		Skipper:          middleware.DefaultSkipper,
+		AllowCredentials: true,
+	}))
 
 	SetRoutes(e, appControllers)
 
@@ -44,6 +76,7 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	root.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	auth := root.Group("/auth")
+	auth.POST("/login", appControllers.UID.Login)
 	auth.GET("/uid", appControllers.UID.GetUID)
 	auth.GET("/uid/admin", appControllers.UID.GetServiceAdminUID)
 
@@ -80,6 +113,8 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	accountRequests.PUT("/cancel", appControllers.AccountRequests.Cancel)
 	accountRequests.PUT("/update", appControllers.AccountRequests.Update)
 	accountRequests.PUT("/complete", appControllers.AccountRequests.Complete)
+	accountRequests.GET("/get", appControllers.AccountRequests.Get)
+	accountRequests.PUT("/return", appControllers.AccountRequests.Return)
 	accountRequestsDelete := accountRequests.Group("/delete")
 	accountRequestsDelete.DELETE("/all", appControllers.AccountRequests.DeleteAll)
 
@@ -87,6 +122,10 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	tableDataGet := tableData.Group("/get")
 	tableDataGet.GET("", appControllers.Tables.Get)
 	tableDataGet.GET("/all", appControllers.Tables.GetAll)
+	tableDataAggregate := tableData.Group("/aggregate")
+	tableDataAggregate.GET("/farmers", appControllers.Tables.FarmerPipeline)
+	tableDataAggregate.GET("/buyers", appControllers.Tables.BuyerPipiline)
+	tableDataAggregate.GET("/teamleads", appControllers.Tables.TeamleadPipiline)
 
 	farmerAccess := root.Group("/farmerAccess")
 	farmerAccess.POST("/add", appControllers.FarmerAccessController.Add)

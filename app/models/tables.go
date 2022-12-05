@@ -2,10 +2,12 @@ package models
 
 import (
 	"gl-farming/app/constants/requestStatus"
+	"strconv"
 
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TableData struct {
@@ -61,8 +63,29 @@ type TableDataRequest struct {
 type Period struct {
 	StartISO  string    `json:"startDate"`
 	EndISO    string    `json:"endDate"`
-	StartDate time.Time `json:"unixStart"`
-	EndDate   time.Time `json:"unixEnd"`
+	StartDate time.Time `json:"-"`
+	EndDate   time.Time `json:"-"`
+}
+
+type PipelineParams struct {
+	Period     Period
+	TeamleadID string
+}
+
+type EmployeePipeline struct {
+	Employee Employee `json:"uid,omitempty" bson:"_id,omitempty"`
+	Quantity uint     `json:"quantity" bson:"quantity"`
+	Valid    uint     `json:"valid" bson:"valid"`
+	Price    float64  `json:"price" bson:"price"`
+	Total    float64  `json:"total" bson:"total"`
+}
+
+type TeamPipiline struct {
+	Team     Team    `json:"uid,omitempty" bson:"_id,omitempty"`
+	Quantity uint    `json:"quantity" bson:"quantity"`
+	Valid    uint    `json:"valid" bson:"valid"`
+	Price    float64 `json:"price" bson:"price"`
+	Total    float64 `json:"total" bson:"total"`
 }
 
 func (p *Period) Convert() {
@@ -74,12 +97,13 @@ func (p *Period) Convert() {
 
 	p.StartDate, _ = time.Parse(date_format, p.StartISO)
 
-	if p.EndISO != "" {
-		p.EndDate, _ = time.Parse(date_format, p.EndISO)
+	if p.EndISO == "" {
+		p.EndDate = time.Now()
 		return
 	}
 
-	p.EndDate = time.Now()
+	p.EndDate, _ = time.Parse(date_format, p.EndISO)
+
 }
 
 func (t *TableDataRequest) GetAll() (filter bson.D) {
@@ -93,7 +117,7 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 		bson.E{Key: "$and", Value: bson.A{
 			bson.D{
 				bson.E{Key: "buyer.id", Value: uid.UserID},
-				bson.E{Key: "status", Value: requestStatus.Pending},
+				bson.E{Key: "status", Value: status},
 				bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
 				bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
 			}}}}
@@ -140,7 +164,7 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "team", Value: 1},
 			bson.E{Key: "farmer", Value: 1},
 			bson.E{Key: "quantity", Value: 1},
-			bson.E{Key: "valid", Value: 0},
+			bson.E{Key: "valid", Value: 1},
 			bson.E{Key: "currency", Value: 1},
 			bson.E{Key: "rate", Value: 1},
 			bson.E{Key: "price", Value: 1},
@@ -168,7 +192,7 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "team", Value: 1},
 			bson.E{Key: "farmer", Value: 1},
 			bson.E{Key: "quantity", Value: 1},
-			bson.E{Key: "valid", Value: 0},
+			bson.E{Key: "valid", Value: 1},
 			bson.E{Key: "currency", Value: 1},
 			bson.E{Key: "rate", Value: 1},
 			bson.E{Key: "price", Value: 1},
@@ -189,11 +213,6 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 		}
 	}
 
-	switch uid.RoleID {
-	case 6:
-
-	}
-
 }
 
 func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, period Period, status int) {
@@ -202,7 +221,7 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 		bson.E{Key: "$and", Value: bson.A{
 			bson.D{
 				bson.E{Key: "farmer.id", Value: farmerAccess.Farmer.ID},
-				bson.E{Key: "team.number", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
+				bson.E{Key: "team.id", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
 				bson.E{Key: "status", Value: status},
 				bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
 				bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
@@ -215,7 +234,7 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 		t.Filter = bson.D{
 			bson.E{Key: "$and", Value: bson.A{
 				bson.D{
-					bson.E{Key: "team", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
+					bson.E{Key: "team.id", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
 					bson.E{Key: "status", Value: requestStatus.Pending},
 					bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
 					bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
@@ -262,7 +281,7 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "buyer", Value: 1},
 			bson.E{Key: "team", Value: 1},
 			bson.E{Key: "quantity", Value: 1},
-			bson.E{Key: "valid", Value: 0},
+			bson.E{Key: "valid", Value: 1},
 			bson.E{Key: "currency", Value: 1},
 			bson.E{Key: "rate", Value: 1},
 			bson.E{Key: "price", Value: 1},
@@ -289,7 +308,7 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "team", Value: 1},
 			bson.E{Key: "buyer", Value: 1},
 			bson.E{Key: "quantity", Value: 1},
-			bson.E{Key: "valid", Value: 0},
+			bson.E{Key: "valid", Value: 1},
 			bson.E{Key: "currency", Value: 1},
 			bson.E{Key: "rate", Value: 1},
 			bson.E{Key: "price", Value: 1},
@@ -311,37 +330,99 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 	}
 }
 
-// bson.D{
-// 	bson.E{Key: "_id", Value: 1},
-// 	bson.E{Key: "type", Value: 1},
-// 	bson.E{Key: "location", Value: 1},
-// 	bson.E{Key: "status", Value: 1},
-// 	bson.E{Key: "team", Value: 1},
-// 	bson.E{Key: "quantity", Value: 1},
-// bson.E{Key: "valid", Value: 0},
-// bson.E{Key: "currency", Value: 1},
-// bson.E{Key: "rate", Value: 1},
-// bson.E{Key: "price", Value: 1},
-// bson.E{Key: "total", Value: 1},
-// bson.E{Key: "crossRate", Value: 0},
-// bson.E{Key: "baseCurrency", Value: 0},
-// bson.E{Key: "baseRate", Value: 0},
-// bson.E{Key: "basePrice", Value: 0},
-// bson.E{Key: "baseTotal", Value: 0},
-// bson.E{Key: "buyer", Value: 1},
-// bson.E{Key: "farmer", Value: 0},
-// bson.E{Key: "takenBy", Value: 0},
-// bson.E{Key: "updatedBy", Value: 0},
-// bson.E{Key: "cancelledBy", Value: 0},
-// bson.E{Key: "completedBy", Value: 0},
-// bson.E{Key: "returnedBy", Value: 0},
-// bson.E{Key: "description", Value: 1},
-// bson.E{Key: "cancellationCause", Value: 0},
-// bson.E{Key: "fileName", Value: 0},
-// bson.E{Key: "dateCreated", Value: 0},
-// bson.E{Key: "dateTaken", Value: 0},
-// bson.E{Key: "dateUpdated", Value: 0},
-// bson.E{Key: "dateCancelled", Value: 0},
-// bson.E{Key: "dateCompleted", Value: 0},
-// bson.E{Key: "dateReturned", Value: 0},
-// }
+func (a EmployeePipeline) FarmerPipeline(period Period) (matchStage primitive.D, groupStage primitive.D) {
+
+	matchStage = bson.D{bson.E{Key: "$match", Value: bson.D{
+		bson.E{Key: "status", Value: requestStatus.Complete},
+		bson.E{Key: "$and", Value: bson.A{
+			bson.M{"dateCreated": bson.M{"$gte": period.StartDate.Unix()}},
+			bson.M{"dateCreated": bson.M{"$lte": period.EndDate.Unix()}},
+		}},
+	}}}
+
+	groupStage = bson.D{
+		{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$farmer"},
+			{Key: "totalSum", Value: bson.D{
+				{Key: "$sum", Value: "$baseTotal"},
+			}},
+			{Key: "price", Value: bson.D{
+				{Key: "$avg", Value: "$basePrice"},
+			}},
+			{Key: "valid", Value: bson.D{
+				{Key: "$sum", Value: "$valid"},
+			}},
+			{Key: "quantity", Value: bson.D{
+				{Key: "$sum", Value: "$quantity"},
+			}},
+		}}}
+	return
+}
+
+func (a EmployeePipeline) BuyerPipiline(period Period, teamleadID string) (matchStage primitive.D, groupStage primitive.D) {
+
+	oid, _ := strconv.Atoi(teamleadID)
+
+	matchStage = bson.D{bson.E{Key: "$match", Value: bson.D{
+		bson.E{Key: "status", Value: requestStatus.Complete},
+		bson.E{Key: "team.teamlead.id", Value: oid},
+		bson.E{Key: "$and", Value: bson.A{
+			bson.M{"dateCreated": bson.M{"$gte": period.StartDate.Unix()}},
+			bson.M{"dateCreated": bson.M{"$lte": period.EndDate.Unix()}},
+		}},
+	}}}
+
+	groupStage = bson.D{
+		{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$buyer"},
+			{Key: "price", Value: bson.D{
+				{Key: "$avg", Value: "$basePrice"},
+			}},
+			{Key: "total", Value: bson.D{
+				{Key: "$sum", Value: "$baseTotal"},
+			}},
+			{Key: "valid", Value: bson.D{
+				{Key: "$sum", Value: "$valid"},
+			}},
+			{Key: "quantity", Value: bson.D{
+				{Key: "$sum", Value: "$quantity"},
+			}},
+			{Key: "team", Value: bson.D{
+				{Key: "$first", Value: "$team"},
+			}},
+		}}}
+	return
+}
+
+func (a TeamPipiline) Pipeline(period Period) (primitive.D, primitive.D) {
+
+	matchStage := bson.D{bson.E{Key: "$match", Value: bson.D{
+		bson.E{Key: "status", Value: requestStatus.Complete},
+		bson.E{Key: "$and", Value: bson.A{
+			bson.M{"dateCreated": bson.M{"$gte": period.StartDate.Unix()}},
+			bson.M{"dateCreated": bson.M{"$lte": period.EndDate.Unix()}},
+		}},
+	}}}
+
+	groupStage := bson.D{
+		{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$team"},
+			{Key: "team", Value: bson.D{
+				{Key: "$first", Value: "$team.teamlead"},
+			}},
+			{Key: "price", Value: bson.D{
+				{Key: "$avg", Value: "$basePrice"},
+			}},
+			{Key: "total", Value: bson.D{
+				{Key: "$sum", Value: "$baseTotal"},
+			}},
+			{Key: "valid", Value: bson.D{
+				{Key: "$sum", Value: "$valid"},
+			}},
+			{Key: "quantity", Value: bson.D{
+				{Key: "$sum", Value: "$quantity"},
+			}},
+		}}}
+
+	return matchStage, groupStage
+}

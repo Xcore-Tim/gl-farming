@@ -15,7 +15,7 @@ import (
 type AccountRequestService interface {
 	Cancel(echo.Context, *models.CancelAccountRequest) error
 	Create(echo.Context, *models.AccountRequest) error
-	Take(echo.Context, *models.Employee) error
+	Take(echo.Context, *models.TakeAccountRequest) error
 	Update(echo.Context, *models.AccountRequest) error
 	Complete(echo.Context, *models.AccountRequest) error
 	Return(echo.Context, *models.ReturnAccountRequest) error
@@ -67,19 +67,18 @@ func (s AccountRequestServiceImpl) Cancel(c echo.Context, cancellRequest *models
 	return nil
 }
 
-func (s AccountRequestServiceImpl) Take(c echo.Context, farmer *models.Employee) error {
+func (s AccountRequestServiceImpl) Take(c echo.Context, takeRequest *models.TakeAccountRequest) error {
 
-	requestID := c.QueryParam("requestID")
-	oid, err := primitive.ObjectIDFromHex(requestID)
+	oid, err := primitive.ObjectIDFromHex(takeRequest.RequestID)
 	if err != nil {
 		return err
 	}
 
 	filter := bson.D{bson.E{Key: "_id", Value: oid}}
 	update := bson.D{bson.E{Key: "$set", Value: bson.D{
-		bson.E{Key: "farmer", Value: farmer},
+		bson.E{Key: "farmer", Value: takeRequest.Farmer},
 		bson.E{Key: "status", Value: requestStatus.Inwork},
-		bson.E{Key: "takenBy", Value: farmer},
+		bson.E{Key: "takenBy", Value: takeRequest.Farmer},
 		bson.E{Key: "dateTaken", Value: time.Now().Unix()},
 	}}}
 
@@ -151,14 +150,13 @@ func (s AccountRequestServiceImpl) Complete(c echo.Context, accountRequest *mode
 
 func (s AccountRequestServiceImpl) Return(c echo.Context, returnAccountRequest *models.ReturnAccountRequest) error {
 
-	farmer := new(models.Employee)
-
-	filter := bson.D{bson.E{Key: "_id", Value: returnAccountRequest.RequestID}}
+	oid, _ := primitive.ObjectIDFromHex(returnAccountRequest.RequestID)
+	filter := bson.D{bson.E{Key: "_id", Value: oid}}
 	update := bson.D{bson.E{Key: "$set", Value: bson.D{
 		bson.E{Key: "status", Value: requestStatus.Pending},
-		bson.E{Key: "farmer", Value: farmer},
+		bson.E{Key: "farmer", Value: returnAccountRequest.Farmer},
 		bson.E{Key: "dateReturned", Value: time.Now().Unix()},
-		bson.E{Key: "returneddBy", Value: returnAccountRequest.CancelledBy},
+		bson.E{Key: "returneddBy", Value: returnAccountRequest.ReturnedBy},
 	}}}
 
 	result := s.collection.FindOneAndUpdate(c.Request().Context(), filter, update)

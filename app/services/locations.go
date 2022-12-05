@@ -12,7 +12,7 @@ import (
 
 type LocationService interface {
 	Create(echo.Context, models.Location) error
-	Update() error
+	Update(echo.Context, *models.Location) error
 	Delete(echo.Context, string) error
 	Get(echo.Context, string) (models.Location, error)
 	GetAll(echo.Context, *[]models.Location) error
@@ -50,7 +50,18 @@ func (s LocationsServiceImpl) Create(c echo.Context, location models.Location) e
 	return nil
 }
 
-func (s LocationsServiceImpl) Update() error {
+func (s LocationsServiceImpl) Update(c echo.Context, location *models.Location) error {
+
+	filter := bson.D{bson.E{Key: "_id", Value: location.MongoID}}
+	update := bson.D{bson.E{Key: "$set", Value: bson.D{
+		bson.E{Key: "name", Value: location.Name},
+		bson.E{Key: "iso", Value: location.ISO},
+	}}}
+	result, _ := s.collection.UpdateOne(c.Request().Context(), filter, update)
+
+	if result.MatchedCount != 1 {
+		return errors.New("no locations found")
+	}
 	return nil
 }
 

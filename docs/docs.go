@@ -138,9 +138,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/v2/accountRequests/get/all": {
-            "get": {
-                "description": "returns all account requests",
+        "/v2/accountRequests/return": {
+            "put": {
+                "description": "Returns account request",
                 "consumes": [
                     "application/json"
                 ],
@@ -150,15 +150,23 @@ const docTemplate = `{
                 "tags": [
                     "Account requests"
                 ],
-                "summary": "Get all account requests",
+                "summary": "Return account request",
+                "parameters": [
+                    {
+                        "description": "request id",
+                        "name": "returnRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ReturnAccountRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AccountRequest"
-                            }
+                            "$ref": "#/definitions/models.AccountRequest"
                         }
                     }
                 }
@@ -179,15 +187,17 @@ const docTemplate = `{
                 "summary": "Take account request in work",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "taken request id",
-                        "name": "requestID",
-                        "in": "query"
+                        "description": "take request body",
+                        "name": "takeRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.TakeAccountRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "success",
                         "schema": {
                             "type": "string"
                         }
@@ -516,6 +526,156 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2/farmerAccess/add": {
+            "post": {
+                "description": "adds access to farmer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "Add access",
+                "parameters": [
+                    {
+                        "description": "farmer uid",
+                        "name": "farmer",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.AccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccessRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/farmerAccess/get/all": {
+            "get": {
+                "description": "returns all accesses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get all accesses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FarmerAccess"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/farmerAccess/get/farmers": {
+            "get": {
+                "description": "returns all farmers accesses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "Get farmer access",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FarmerAccessList"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/farmerAccess/get/teams": {
+            "get": {
+                "description": "returns all teams",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "Get teams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/farmerAccess/revoke": {
+            "delete": {
+                "description": "revokes access to farmer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "revoke access",
+                "parameters": [
+                    {
+                        "description": "farmer uid",
+                        "name": "accessRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.AccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccessRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v2/locations/create": {
             "post": {
                 "description": "creates location",
@@ -659,9 +819,252 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v2/locations/update": {
+            "patch": {
+                "description": "Updates location by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Update location",
+                "parameters": [
+                    {
+                        "description": "location body",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/tableData/aggregate/buyers": {
+            "get": {
+                "description": "returns buyer list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get buyer list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "period start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "period end date",
+                        "name": "endDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "teamlead id",
+                        "name": "teamleadID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.EmployeePipeline"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/tableData/aggregate/farmers": {
+            "get": {
+                "description": "returns farmer list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get farmer list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "period start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "period end date",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.EmployeePipeline"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/tableData/aggregate/teamleads": {
+            "get": {
+                "description": "returns team list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get team list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "period start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "period end date",
+                        "name": "endDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.EmployeePipeline"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/tableData/get": {
+            "get": {
+                "description": "returns all account requests by period and employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get account requests by period and employee",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "period start date",
+                        "name": "startDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "period end date",
+                        "name": "endDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TableData"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/tableData/get/all": {
+            "get": {
+                "description": "returns all account requests",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get all account requests",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AccountRequest"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.AccessRequest": {
+            "type": "object",
+            "properties": {
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "teamID": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.AccountRequest": {
             "type": "object",
             "properties": {
@@ -780,12 +1183,6 @@ const docTemplate = `{
                 "cancellationCause": {
                     "type": "string"
                 },
-                "cancelledBy": {
-                    "$ref": "#/definitions/models.Employee"
-                },
-                "dateCancelled": {
-                    "type": "integer"
-                },
                 "requestID": {
                     "type": "string"
                 }
@@ -862,6 +1259,54 @@ const docTemplate = `{
                 }
             }
         },
+        "models.EmployeePipeline": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "uid": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "valid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.FarmerAccess": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "team": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.FarmerAccessList": {
+            "type": "object",
+            "properties": {
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "models.Location": {
             "type": "object",
             "properties": {
@@ -872,6 +1317,126 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ReturnAccountRequest": {
+            "type": "object",
+            "properties": {
+                "_": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "requestID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TableData": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "baseCurrency": {
+                    "$ref": "#/definitions/models.Currency"
+                },
+                "basePrice": {
+                    "type": "number"
+                },
+                "baseRate": {
+                    "type": "number"
+                },
+                "baseTotal": {
+                    "type": "number"
+                },
+                "buyer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "cancellationCause": {
+                    "type": "string"
+                },
+                "cancelledBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "completedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "crossRate": {
+                    "type": "number"
+                },
+                "currency": {
+                    "$ref": "#/definitions/models.Currency"
+                },
+                "dateCancelled": {
+                    "type": "integer"
+                },
+                "dateCompleted": {
+                    "type": "integer"
+                },
+                "dateCreated": {
+                    "type": "integer"
+                },
+                "dateReturned": {
+                    "type": "integer"
+                },
+                "dateTaken": {
+                    "type": "integer"
+                },
+                "dateUpdated": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/models.Location"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "rate": {
+                    "type": "number"
+                },
+                "returnedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "takenBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.AccountType"
+                },
+                "updatedBy": {
+                    "$ref": "#/definitions/models.Employee"
+                },
+                "valid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.TakeAccountRequest": {
+            "type": "object",
+            "properties": {
+                "requestID": {
                     "type": "string"
                 }
             }

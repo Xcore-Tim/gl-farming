@@ -12,3 +12,7 @@ type Location struct {
 func (l *Location) ConvertID() {
 	l.ID = l.MongoID.Hex()
 }
+
+func (l *Location) ConvertToMongoID() {
+	l.MongoID, _ = primitive.ObjectIDFromHex(l.ID)
+}

@@ -14,6 +14,11 @@ type FarmerAccessList struct {
 	Teams  []int    `json:"teams"`
 }
 
+type AccessRequest struct {
+	Farmer Employee `json:"farmer"`
+	TeamID int      `json:"teamID"`
+}
+
 func (f *FarmerAccess) ConvertID() {
 	f.ID = f.MongoID.Hex()
 }

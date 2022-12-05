@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"errors"
+	"gl-farming/app/models"
 	"gl-farming/app/services"
 	"net/http"
 
@@ -13,6 +15,23 @@ type UIDController struct {
 
 func NewUIDController() UIDController {
 	return UIDController{}
+}
+
+func (ctrl UIDController) Login(c echo.Context) error {
+
+	var authData models.UserCredentials
+
+	if err := c.Bind(&authData); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	uid, err := ctrl.Service.Login(authData)
+	if err != nil {
+		badCredentials := errors.New("incorrect user credentials")
+		return c.JSON(http.StatusBadRequest, badCredentials)
+	}
+
+	return c.JSON(http.StatusOK, uid)
 }
 
 func (ctrl UIDController) GetUID(c echo.Context) error {

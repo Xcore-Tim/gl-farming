@@ -60,9 +60,9 @@ type CreateAccountRequest struct {
 
 type CancelAccountRequest struct {
 	RequestID         string   `json:"requestID"`
-	CancelledBy       Employee `json:"cancelledBy"`
+	CancelledBy       Employee `json:"-"`
 	CancellationCause string   `json:"cancellationCause"`
-	DateCancelled     int64    `json:"dateCancelled"`
+	DateCancelled     int64    `json:"-"`
 }
 
 type CompleteAccountRequest struct {
@@ -70,6 +70,17 @@ type CompleteAccountRequest struct {
 	CurrencyID string  `json:"currencyID"`
 	Price      float64 `json:"price"`
 	Valid      uint    `json:"valid"`
+}
+
+type TakeAccountRequest struct {
+	RequestID string   `json:"requestID"`
+	Farmer    Employee `json:"-"`
+}
+
+type ReturnAccountRequest struct {
+	RequestID  string   `json:"requestID"`
+	Farmer     Employee `json:"_"`
+	ReturnedBy Employee `json:"-"`
 }
 
 type UpdateAccountRequest struct {
@@ -80,11 +91,6 @@ type UpdateAccountRequest struct {
 	LocationID  string  `json:"locationID"`
 	Price       float64 `json:"price"`
 	Quantity    uint    `json:"quantity"`
-}
-
-type ReturnAccountRequest struct {
-	RequestID   primitive.ObjectID
-	CancelledBy Employee
 }
 
 func (a *AccountRequest) ConvertID() {

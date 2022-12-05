@@ -4,6 +4,7 @@ import (
 	"errors"
 	userRole "gl-farming/app/constants/roles"
 	"gl-farming/app/models"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,8 +31,9 @@ func (s TeamServiceImpl) GetFarmers(adminToken string) ([]models.Employee, error
 	return farmers, nil
 }
 
-func (s TeamServiceImpl) AddAccess(c echo.Context, farmerAccess *models.FarmerAccess) error {
+func (s TeamServiceImpl) AddAccess(c echo.Context, farmerAccess *models.AccessRequest) error {
 
+	c.JSON(http.StatusAccepted, farmerAccess)
 	if _, err := s.collection.InsertOne(c.Request().Context(), farmerAccess); err != nil {
 		return err
 	}
@@ -39,14 +41,14 @@ func (s TeamServiceImpl) AddAccess(c echo.Context, farmerAccess *models.FarmerAc
 	return nil
 }
 
-func (s TeamServiceImpl) RevokeAccess(c echo.Context, farmerAccess *models.FarmerAccess) error {
+func (s TeamServiceImpl) RevokeAccess(c echo.Context, farmerAccess *models.AccessRequest) error {
 
 	filter := bson.D{
-		bson.E{Key: "farmer", Value: farmerAccess.Farmer},
-		bson.E{Key: "team", Value: farmerAccess.Team},
+		bson.E{Key: "farmer.id", Value: farmerAccess.Farmer.ID},
+		bson.E{Key: "team", Value: farmerAccess.TeamID},
 	}
 	result, _ := s.collection.DeleteOne(c.Request().Context(), filter)
-
+	c.JSON(http.StatusAccepted, farmerAccess)
 	if result.DeletedCount != 1 {
 		return errors.New("no farmer access found")
 	}
@@ -54,19 +56,21 @@ func (s TeamServiceImpl) RevokeAccess(c echo.Context, farmerAccess *models.Farme
 	return nil
 }
 
-func (s TeamServiceImpl) UpdateAccess(c echo.Context, farmerAccess *models.FarmerAccess) error {
+func (s TeamServiceImpl) UpdateAccess(c echo.Context, farmerAccess *models.AccessRequest) error {
 
 	filter := bson.D{
 		bson.E{Key: "farmer", Value: farmerAccess.Farmer},
-		bson.E{Key: "team", Value: farmerAccess.Team},
+		bson.E{Key: "team", Value: farmerAccess.TeamID},
 	}
 
 	update := bson.D{bson.E{Key: "$set", Value: bson.D{
 		bson.E{Key: "farmer", Value: farmerAccess.Farmer},
-		bson.E{Key: "team", Value: farmerAccess.Team},
+		bson.E{Key: "team", Value: farmerAccess.TeamID},
 	}}}
 
 	result, _ := s.collection.UpdateOne(c.Request().Context(), filter, update)
+
+	c.JSON(http.StatusAccepted, result.MatchedCount)
 
 	if result.MatchedCount != 1 {
 		return errors.New("no farmer access found")

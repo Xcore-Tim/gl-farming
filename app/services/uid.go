@@ -17,6 +17,7 @@ import (
 type UIDService interface {
 	GetUID(echo.Context) (models.UID, error)
 	GetAdminToken() (string, error)
+	Login(models.UserCredentials) (models.UID, error)
 	// GetAuthToken(*echo.Context) string
 }
 
@@ -80,6 +81,80 @@ func (s UIDServiceImpl) GetUID(ctx echo.Context) (models.UID, error) {
 	}
 
 	return UID, nil
+}
+
+func (s UIDServiceImpl) Login(userCredentials models.UserCredentials) (models.UID, error) {
+
+	var uid models.UID
+
+	urlPath := gipsyUI.Basepath + gipsyUI.AuthEndpoint
+
+	requestBody, _ := json.Marshal(map[string]string{
+		"email":    userCredentials.Email,
+		"password": userCredentials.Password,
+	})
+
+	bodyReader := bytes.NewBuffer(requestBody)
+
+	request, err := http.NewRequest(http.MethodPost, urlPath, bodyReader)
+
+	if err != nil {
+		return uid, err
+	}
+
+	request.Header.Set("Content-Type", gipsyUI.AuthContentType)
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+
+	if err != nil {
+		return uid, err
+	}
+
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return uid, err
+	}
+
+	if err = json.Unmarshal([]byte(body), &uid); err != nil {
+		return uid, err
+	}
+
+	url := gipsyUI.Basepath + gipsyUI.UsersEndpoint + strconv.Itoa(uid.UserID)
+	bearer := "BEARER " + uid.Token
+
+	request, err = http.NewRequest(http.MethodGet, url, nil)
+
+	if err != nil {
+		return uid, err
+	}
+
+	request.Header.Add("Authorization", bearer)
+
+	response, err = client.Do(request)
+
+	if err != nil {
+		return uid, err
+	}
+
+	defer response.Body.Close()
+
+	body, err = io.ReadAll(response.Body)
+
+	if err != nil {
+		return uid, err
+	}
+
+	if err := json.Unmarshal([]byte(body), &uid); err != nil {
+		return uid, err
+	}
+
+	return uid, nil
+
 }
 
 func (s UIDServiceImpl) GetAdminToken() (string, error) {

@@ -17,28 +17,8 @@ type Collections struct {
 	FarmerAccess    *mongo.Collection
 }
 
-func Init() (*Collections, error) {
+func Init(ctx context.Context) (*mongo.Client, error) {
 
-	client, err := Connect()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var Collections = Collections{
-		AccountRequests: client.Database("gypsyland").Collection("accountRequests"),
-		AccountTypes:    client.Database("gypsyland").Collection("accountTypes"),
-		Locations:       client.Database("gypsyland").Collection("locations"),
-		Currency:        client.Database("gypsyland").Collection("currency"),
-		FarmerAccess:    client.Database("gypsyland").Collection("farmerAccess"),
-	}
-
-	return &Collections, nil
-}
-
-func Connect() (*mongo.Client, error) {
-
-	ctx := context.TODO()
 	connectionAddress := "mongodb://localhost:27017"
 	mongoConnection := options.Client().ApplyURI(connectionAddress)
 	mongoClient, err := mongo.Connect(ctx, mongoConnection)
@@ -53,4 +33,5 @@ func Connect() (*mongo.Client, error) {
 
 	fmt.Println("Connection established")
 	return mongoClient, nil
+
 }

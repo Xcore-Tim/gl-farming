@@ -4,7 +4,6 @@ import (
 	"gl-farming/app/models"
 	"gl-farming/app/services"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,21 +18,25 @@ func NewFarmerAccessController(appServices services.AppServices) FarmerAccessCon
 	}
 }
 
+// Add godoc
+// @Summary      Add access
+// @Description  adds access to farmer
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Param        farmer    body     models.AccessRequest  false  "farmer uid"
+// @Success      200  {array}  models.AccessRequest
+// @Router       /v2/farmerAccess/add [post]
 func (ctrl FarmerAccessController) Add(c echo.Context) error {
 
-	var farmer models.Employee
+	var addAccessRequest models.AccessRequest
 
-	if err := c.Bind(&farmer); err != nil {
+	if err := c.Bind(&addAccessRequest); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	var farmerAccess models.FarmerAccess
-	team, _ := strconv.Atoi(c.QueryParam("teamID"))
-	farmerAccess.Farmer = farmer
-	farmerAccess.Team = team
-
-	if err := ctrl.Services.Teams.UpdateAccess(c, &farmerAccess); err != nil {
-		if err := ctrl.Services.Teams.AddAccess(c, &farmerAccess); err != nil {
+	if err := ctrl.Services.Teams.UpdateAccess(c, &addAccessRequest); err != nil {
+		if err := ctrl.Services.Teams.AddAccess(c, &addAccessRequest); err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
 	}
@@ -41,20 +44,24 @@ func (ctrl FarmerAccessController) Add(c echo.Context) error {
 	return c.String(http.StatusOK, "success")
 }
 
+// Revoke godoc
+// @Summary      revoke access
+// @Description  revokes access to farmer
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Param        accessRequest    body     models.AccessRequest  false  "farmer uid"
+// @Success      200  {array}  models.AccessRequest
+// @Router       /v2/farmerAccess/revoke [delete]
 func (ctrl FarmerAccessController) Revoke(c echo.Context) error {
 
-	var farmer models.Employee
+	var revokeAccessRequest models.AccessRequest
 
-	if err := c.Bind(&farmer); err != nil {
+	if err := c.Bind(&revokeAccessRequest); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	var farmerAccess models.FarmerAccess
-	team, _ := strconv.Atoi(c.QueryParam("teamID"))
-	farmerAccess.Farmer = farmer
-	farmerAccess.Team = team
-
-	if err := ctrl.Services.Teams.RevokeAccess(c, &farmerAccess); err != nil {
+	if err := ctrl.Services.Teams.RevokeAccess(c, &revokeAccessRequest); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
@@ -81,6 +88,14 @@ func (ctrl FarmerAccessController) GetAccess(c echo.Context) error {
 	return c.JSON(http.StatusOK, 1)
 }
 
+// GetAll godoc
+// @Summary      Get all accesses
+// @Description  returns all accesses
+// @Tags         Table data
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  models.FarmerAccess
+// @Router       /v2/farmerAccess/get/all [get]
 func (ctrl FarmerAccessController) GetAll(c echo.Context) error {
 
 	var accessList []models.FarmerAccess
@@ -92,6 +107,14 @@ func (ctrl FarmerAccessController) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, accessList)
 }
 
+// GetTeams godoc
+// @Summary      Get teams
+// @Description  returns all teams
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  int
+// @Router       /v2/farmerAccess/get/teams [get]
 func (ctrl FarmerAccessController) GetTeams(c echo.Context) error {
 
 	adminToken, err := ctrl.Services.UID.GetAdminToken()
@@ -109,6 +132,14 @@ func (ctrl FarmerAccessController) GetTeams(c echo.Context) error {
 	return nil
 }
 
+// GetFarmers godoc
+// @Summary      Get farmer access
+// @Description  returns all farmers accesses
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  models.FarmerAccessList
+// @Router       /v2/farmerAccess/get/farmers [get]
 func (ctrl FarmerAccessController) GetFarmers(c echo.Context) error {
 
 	adminToken, err := ctrl.Services.UID.GetAdminToken()
