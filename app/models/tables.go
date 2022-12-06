@@ -88,6 +88,12 @@ type TeamPipiline struct {
 	Total    float64 `json:"total" bson:"total"`
 }
 
+type TeamleadTableRequest struct {
+	UID    UID    `json:"uid"`
+	Period Period `json:"period"`
+	Status int    `json:"status"`
+}
+
 func (p *Period) Convert() {
 	date_format := "2006-01-02"
 
@@ -103,7 +109,6 @@ func (p *Period) Convert() {
 	}
 
 	p.EndDate, _ = time.Parse(date_format, p.EndISO)
-
 }
 
 func (t *TableDataRequest) GetAll() (filter bson.D) {
@@ -212,7 +217,6 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "cancelledBy", Value: 1},
 		}
 	}
-
 }
 
 func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, period Period, status int) {
@@ -235,6 +239,119 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "$and", Value: bson.A{
 				bson.D{
 					bson.E{Key: "team.id", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
+					bson.E{Key: "status", Value: requestStatus.Pending},
+					bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
+					bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
+				},
+			}}}
+
+		t.Projection = bson.D{
+			bson.E{Key: "_id", Value: 1},
+			bson.E{Key: "type", Value: 1},
+			bson.E{Key: "location", Value: 1},
+			bson.E{Key: "team", Value: 1},
+			bson.E{Key: "buyer", Value: 1},
+			bson.E{Key: "quantity", Value: 1},
+			bson.E{Key: "description", Value: 1},
+			bson.E{Key: "dateCreated", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "dateUpdated", Value: 1},
+			bson.E{Key: "updatedBy", Value: 1},
+		}
+	case requestStatus.Inwork:
+
+		t.Projection = bson.D{
+			bson.E{Key: "_id", Value: 1},
+			bson.E{Key: "type", Value: 1},
+			bson.E{Key: "location", Value: 1},
+			bson.E{Key: "buyer", Value: 1},
+			bson.E{Key: "team", Value: 1},
+			bson.E{Key: "quantity", Value: 1},
+			bson.E{Key: "currency", Value: 1},
+			bson.E{Key: "dateCreated", Value: 1},
+			bson.E{Key: "dateUpdated", Value: 1},
+			bson.E{Key: "dateTaken", Value: 1},
+			bson.E{Key: "description", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "takenBy", Value: 1},
+			bson.E{Key: "updatedBy", Value: 1},
+		}
+
+	case requestStatus.Complete:
+		t.Projection = bson.D{
+			bson.E{Key: "_id", Value: 1},
+			bson.E{Key: "type", Value: 1},
+			bson.E{Key: "location", Value: 1},
+			bson.E{Key: "buyer", Value: 1},
+			bson.E{Key: "team", Value: 1},
+			bson.E{Key: "quantity", Value: 1},
+			bson.E{Key: "valid", Value: 1},
+			bson.E{Key: "currency", Value: 1},
+			bson.E{Key: "rate", Value: 1},
+			bson.E{Key: "price", Value: 1},
+			bson.E{Key: "total", Value: 1},
+			bson.E{Key: "crossRate", Value: 1},
+			bson.E{Key: "baseCurrency", Value: 1},
+			bson.E{Key: "baseRate", Value: 1},
+			bson.E{Key: "basePrice", Value: 1},
+			bson.E{Key: "baseTotal", Value: 1},
+			bson.E{Key: "description", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "dateCreated", Value: 1},
+			bson.E{Key: "dateTaken", Value: 1},
+			bson.E{Key: "dateUpdated", Value: 1},
+			bson.E{Key: "dateCompleted", Value: 1},
+			bson.E{Key: "completedBy", Value: 1},
+			bson.E{Key: "updatedBy", Value: 1},
+		}
+	case requestStatus.Cancelled:
+		t.Projection = bson.D{
+			bson.E{Key: "_id", Value: 1},
+			bson.E{Key: "type", Value: 1},
+			bson.E{Key: "location", Value: 1},
+			bson.E{Key: "team", Value: 1},
+			bson.E{Key: "buyer", Value: 1},
+			bson.E{Key: "quantity", Value: 1},
+			bson.E{Key: "valid", Value: 1},
+			bson.E{Key: "currency", Value: 1},
+			bson.E{Key: "rate", Value: 1},
+			bson.E{Key: "price", Value: 1},
+			bson.E{Key: "total", Value: 1},
+			bson.E{Key: "crossRate", Value: 1},
+			bson.E{Key: "baseCurrency", Value: 1},
+			bson.E{Key: "baseRate", Value: 1},
+			bson.E{Key: "basePrice", Value: 1},
+			bson.E{Key: "baseTotal", Value: 1},
+			bson.E{Key: "description", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "dateCreated", Value: 1},
+			bson.E{Key: "dateTaken", Value: 1},
+			bson.E{Key: "dateUpdated", Value: 1},
+			bson.E{Key: "cancellationCause", Value: 1},
+			bson.E{Key: "dateCancelled", Value: 1},
+			bson.E{Key: "cancelledBy", Value: 1},
+		}
+	}
+}
+
+func (t *TableDataRequest) GetTlfRequests(uid UID, period Period, status int) {
+
+	t.Filter = bson.D{
+		bson.E{Key: "$and", Value: bson.A{
+			bson.D{
+				bson.E{Key: "farmer.id", Value: uid.UserID},
+				bson.E{Key: "status", Value: status},
+				bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
+				bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
+			},
+		}},
+	}
+
+	switch status {
+	case requestStatus.Pending:
+		t.Filter = bson.D{
+			bson.E{Key: "$and", Value: bson.A{
+				bson.D{
 					bson.E{Key: "status", Value: requestStatus.Pending},
 					bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
 					bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},

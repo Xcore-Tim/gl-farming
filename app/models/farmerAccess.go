@@ -15,8 +15,8 @@ type FarmerAccessList struct {
 }
 
 type AccessRequest struct {
-	Farmer Employee `json:"farmer"`
-	TeamID int      `json:"teamID"`
+	Farmer Employee `json:"farmer" bson:"farmer"`
+	TeamID int      `json:"teamID" bson:"team"`
 }
 
 func (f *FarmerAccess) ConvertID() {

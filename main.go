@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gl-farming/app/constants/files"
 	"gl-farming/app/controllers"
 	"gl-farming/app/services"
 	"gl-farming/database"
@@ -63,8 +64,8 @@ func main() {
 		Skipper:          middleware.DefaultSkipper,
 		AllowCredentials: true,
 	}))
-
 	SetRoutes(e, appControllers)
+	e.Static(files.Static, "static")
 
 	e.Logger.Fatal(e.Start(":80"))
 
@@ -80,14 +81,8 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	auth.GET("/uid", appControllers.UID.GetUID)
 	auth.GET("/uid/admin", appControllers.UID.GetServiceAdminUID)
 
-	locations := root.Group("/locations")
-	locations.POST("/create", appControllers.Locations.Create)
-	locationsGet := locations.Group("/get")
-	locationsGet.GET("", appControllers.Locations.Get)
-	locationsGet.GET("/all", appControllers.Locations.GetAll)
-	locationsDelete := locations.Group("/delete")
-	locationsDelete.DELETE("", appControllers.Locations.Delete)
-	locationsDelete.DELETE("/all", appControllers.Locations.DeleteAll)
+	files := root.Group("/files")
+	files.POST("/upload", appControllers.Files.Upload)
 
 	accountTypes := root.Group("/accountTypes")
 	accountTypes.POST("/create", appControllers.AccountTypes.Create)
@@ -98,6 +93,28 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	accountTypesDelete.DELETE("", appControllers.AccountTypes.Delete)
 	accountTypesDelete.DELETE("/all", appControllers.AccountTypes.DeleteAll)
 
+	farmerAccess := root.Group("/farmerAccess")
+	farmerAccess.POST("/add", appControllers.FarmerAccessController.Add)
+	farmerAccess.PUT("/revoke", appControllers.FarmerAccessController.Revoke)
+	farmerAccessGet := farmerAccess.Group("/get")
+	farmerAccessGet.GET("/teams", appControllers.FarmerAccessController.GetTeams)
+	farmerAccessGet.GET("/farmers", appControllers.FarmerAccessController.GetFarmers)
+	farmerAccessGet.GET("/all", appControllers.FarmerAccessController.GetAll)
+	farmerAccessGet.GET("/access", appControllers.FarmerAccessController.GetAccess)
+	farmerAccessDelete := farmerAccess.Group("/delete")
+	farmerAccessDelete.DELETE("/all", appControllers.FarmerAccessController.DeleteAll)
+
+	tableData := root.Group("/tableData")
+	tableDataGet := tableData.Group("/get")
+	tableDataGet.GET("", appControllers.Tables.Get)
+	tableDataGet.GET("/all", appControllers.Tables.GetAll)
+	tableDataAggregate := tableData.Group("/aggregate")
+	tableDataAggregate.GET("/farmers", appControllers.Tables.FarmerPipeline)
+	tableDataAggregate.GET("/buyers", appControllers.Tables.BuyerPipiline)
+	tableDataAggregate.GET("/teamleads", appControllers.Tables.TeamleadPipiline)
+	tableDataTeamlead := tableData.Group("/teamlead")
+	tableDataTeamlead.POST("/get", appControllers.Tables.GetTeamleadTables)
+
 	currency := root.Group("/currency")
 	currency.POST("/create", appControllers.Currency.Create)
 	currencyGet := currency.Group("/get")
@@ -106,6 +123,15 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	currencyDelete := currency.Group("/delete")
 	currencyDelete.DELETE("", appControllers.Currency.Delete)
 	currencyDelete.DELETE("/all", appControllers.Currency.DeleteAll)
+
+	locations := root.Group("/locations")
+	locations.POST("/create", appControllers.Locations.Create)
+	locationsGet := locations.Group("/get")
+	locationsGet.GET("", appControllers.Locations.Get)
+	locationsGet.GET("/all", appControllers.Locations.GetAll)
+	locationsDelete := locations.Group("/delete")
+	locationsDelete.DELETE("", appControllers.Locations.Delete)
+	locationsDelete.DELETE("/all", appControllers.Locations.DeleteAll)
 
 	accountRequests := root.Group("/accountRequests")
 	accountRequests.POST("/create", appControllers.AccountRequests.Create)
@@ -118,23 +144,4 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	accountRequestsDelete := accountRequests.Group("/delete")
 	accountRequestsDelete.DELETE("/all", appControllers.AccountRequests.DeleteAll)
 
-	tableData := root.Group("/tableData")
-	tableDataGet := tableData.Group("/get")
-	tableDataGet.GET("", appControllers.Tables.Get)
-	tableDataGet.GET("/all", appControllers.Tables.GetAll)
-	tableDataAggregate := tableData.Group("/aggregate")
-	tableDataAggregate.GET("/farmers", appControllers.Tables.FarmerPipeline)
-	tableDataAggregate.GET("/buyers", appControllers.Tables.BuyerPipiline)
-	tableDataAggregate.GET("/teamleads", appControllers.Tables.TeamleadPipiline)
-
-	farmerAccess := root.Group("/farmerAccess")
-	farmerAccess.POST("/add", appControllers.FarmerAccessController.Add)
-	farmerAccess.DELETE("/revoke", appControllers.FarmerAccessController.Revoke)
-	farmerAccessGet := farmerAccess.Group("/get")
-	farmerAccessGet.GET("/teams", appControllers.FarmerAccessController.GetTeams)
-	farmerAccessGet.GET("/farmers", appControllers.FarmerAccessController.GetFarmers)
-	farmerAccessGet.GET("/all", appControllers.FarmerAccessController.GetAll)
-	farmerAccessGet.GET("/access", appControllers.FarmerAccessController.GetAccess)
-	farmerAccessDelete := farmerAccess.Group("/delete")
-	farmerAccessDelete.DELETE("/all", appControllers.FarmerAccessController.DeleteAll)
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"gl-farming/app/constants/gipsyUI"
 	userRole "gl-farming/app/constants/roles"
+	"gl-farming/app/helper"
 	"gl-farming/app/models"
 	"io"
 	"net/http"
@@ -78,6 +79,10 @@ func (s TeamServiceImpl) GetTeams(adminToken *string) ([]int, error) {
 	for _, team := range teamleads {
 		teams = append(teams, team.TeamID)
 	}
+
+	teams = helper.Unique(teams)
+	teams = helper.BubbleSort(teams)
+
 	return teams, nil
 }
 

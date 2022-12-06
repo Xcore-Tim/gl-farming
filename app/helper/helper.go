@@ -34,3 +34,30 @@ func NewDecoderXML(body io.ReadCloser) *xml.Decoder {
 
 	return d
 }
+
+func BubbleSort(ar []int) []int {
+	for i := 0; i < len(ar); i++ {
+		for j := i; j < len(ar); j++ {
+			if ar[i] > ar[j] {
+				// swap(ar, i, j)
+				ar[i], ar[j] = ar[j], ar[i]
+			}
+		}
+	}
+	return ar
+}
+
+func Unique(sl []int) []int {
+
+	var unique = make(map[int]bool)
+	for _, v := range sl {
+		if _, ok := unique[v]; !ok {
+			unique[v] = true
+		}
+	}
+	var newSlice []int
+	for k := range unique {
+		newSlice = append(newSlice, k)
+	}
+	return newSlice
+}

@@ -173,6 +173,13 @@ definitions:
       name:
         type: string
     type: object
+  models.Period:
+    properties:
+      endDate:
+        type: string
+      startDate:
+        type: string
+    type: object
   models.ReturnAccountRequest:
     properties:
       _:
@@ -258,6 +265,28 @@ definitions:
         type: integer
       teamlead:
         $ref: '#/definitions/models.Employee'
+    type: object
+  models.TeamleadTableRequest:
+    properties:
+      period:
+        $ref: '#/definitions/models.Period'
+      status:
+        type: integer
+      uid:
+        $ref: '#/definitions/models.UID'
+    type: object
+  models.UID:
+    properties:
+      roleID:
+        type: integer
+      teamID:
+        type: integer
+      token:
+        type: string
+      userID:
+        type: integer
+      username:
+        type: string
     type: object
   models.UpdateAccountRequest:
     properties:
@@ -952,6 +981,29 @@ paths:
               $ref: '#/definitions/models.AccountRequest'
             type: array
       summary: Get all account requests
+      tags:
+      - Table data
+  /v2/tableData/teamlead/get:
+    post:
+      consumes:
+      - application/json
+      description: returns all account requests by period and employee
+      parameters:
+      - description: status
+        in: body
+        name: getTeamleadTables
+        schema:
+          $ref: '#/definitions/models.TeamleadTableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TableData'
+            type: array
+      summary: Get account requests by period and employee
       tags:
       - Table data
 swagger: "2.0"

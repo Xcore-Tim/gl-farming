@@ -62,6 +62,7 @@ func (ctrl FarmerAccessController) Revoke(c echo.Context) error {
 	}
 
 	if err := ctrl.Services.Teams.RevokeAccess(c, &revokeAccessRequest); err != nil {
+		c.JSON(http.StatusOK, revokeAccessRequest)
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 

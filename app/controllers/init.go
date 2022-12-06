@@ -5,6 +5,7 @@ import "gl-farming/app/services"
 type AppControllers struct {
 	AccountRequests        AccountRequestController
 	Tables                 TableController
+	Files                  FileController
 	FarmerAccessController FarmerAccessController
 	AccountTypes           AccountTypeController
 	Currency               CurrencyController
@@ -17,6 +18,7 @@ func NewAppControllers(appServices services.AppServices) AppControllers {
 	var ac = AppControllers{
 		AccountRequests:        NewAccountRequestController(appServices),
 		Tables:                 NewTableController(appServices),
+		Files:                  FileController(NewFileController(appServices)),
 		FarmerAccessController: NewFarmerAccessController(appServices),
 		AccountTypes:           NewAccountTypeController(),
 		Currency:               NewCurrencyController(),

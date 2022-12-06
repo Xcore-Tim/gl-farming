@@ -1051,6 +1051,42 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v2/tableData/teamlead/get": {
+            "post": {
+                "description": "returns all account requests by period and employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Table data"
+                ],
+                "summary": "Get account requests by period and employee",
+                "parameters": [
+                    {
+                        "description": "status",
+                        "name": "getTeamleadTables",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.TeamleadTableRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TableData"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1321,6 +1357,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Period": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ReturnAccountRequest": {
             "type": "object",
             "properties": {
@@ -1449,6 +1496,40 @@ const docTemplate = `{
                 },
                 "teamlead": {
                     "$ref": "#/definitions/models.Employee"
+                }
+            }
+        },
+        "models.TeamleadTableRequest": {
+            "type": "object",
+            "properties": {
+                "period": {
+                    "$ref": "#/definitions/models.Period"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "uid": {
+                    "$ref": "#/definitions/models.UID"
+                }
+            }
+        },
+        "models.UID": {
+            "type": "object",
+            "properties": {
+                "roleID": {
+                    "type": "integer"
+                },
+                "teamID": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

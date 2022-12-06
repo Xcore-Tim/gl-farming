@@ -37,16 +37,22 @@ func (ctrl TableController) Get(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	var period models.Period
+	period.StartISO = c.QueryParam("startDate")
+	period.EndISO = c.QueryParam("endDate")
+	period.Convert()
+
 	var tableData models.TableDataRequest
 
 	status, _ := strconv.Atoi(c.QueryParam("status"))
 
 	switch uid.RoleID {
 	case 2, 3, 4, 7:
-		tableData, err = ctrl.getBuyerRequests(c, status)
+		tableData, err = ctrl.getBuyerRequests(c, uid, period, status)
 	case 6:
-		tableData, err = ctrl.getFarmerRequests(c, status)
-		// c.String(http.StatusAccepted, "hrsfs")
+		tableData, err = ctrl.getFarmerRequests(c, uid, period, status)
+	case 5:
+		tableData, err = ctrl.getTlfRequests(c, uid, period, status)
 	}
 
 	if err != nil {
@@ -62,28 +68,26 @@ func (ctrl TableController) Get(c echo.Context) error {
 // @Tags         Table data
 // @Accept       json
 // @Produce      json
-// @Param        startDate    query     string  false  "period start date"
-// @Param        endDate    query     string  false  "period end date"
-// @Param        status    query     string  false  "status"
+// @Param        getTeamleadTables    body  models.TeamleadTableRequest   false  "status"
 // @Success      200  {array}  models.TableData
-// @Router       /v2/tableData/get [get]
-func (ctrl TableController) GetTeamleadFarmerTables(c echo.Context) error {
+// @Router       /v2/tableData/teamlead/get [post]
+func (ctrl TableController) GetTeamleadTables(c echo.Context) error {
 
-	uid, err := ctrl.Services.UID.GetUID(c)
+	var teamleadTableRequest models.TeamleadTableRequest
+
+	err := c.Bind(&teamleadTableRequest)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
+	teamleadTableRequest.Period.Convert()
 
 	var tableData models.TableDataRequest
 
-	status, _ := strconv.Atoi(c.QueryParam("status"))
-
-	switch uid.RoleID {
+	switch teamleadTableRequest.UID.RoleID {
 	case 2, 3, 4, 7:
-		tableData, err = ctrl.getBuyerRequests(c, status)
+		tableData, err = ctrl.getBuyerRequests(c, teamleadTableRequest.UID, teamleadTableRequest.Period, teamleadTableRequest.Status)
 	case 6:
-		tableData, err = ctrl.getFarmerRequests(c, status)
-		// c.String(http.StatusAccepted, "hrsfs")
+		tableData, err = ctrl.getFarmerRequests(c, teamleadTableRequest.UID, teamleadTableRequest.Period, teamleadTableRequest.Status)
 	}
 
 	if err != nil {
@@ -179,19 +183,9 @@ func (ctrl TableController) TeamleadPipiline(c echo.Context) error {
 	return c.JSON(http.StatusOK, atd)
 }
 
-func (ctrl TableController) getBuyerRequests(c echo.Context, status int) (models.TableDataRequest, error) {
+func (ctrl TableController) getBuyerRequests(c echo.Context, uid models.UID, period models.Period, status int) (models.TableDataRequest, error) {
 
 	var tableDataRequest models.TableDataRequest
-
-	uid, err := ctrl.Services.UID.GetUID(c)
-	if err != nil {
-		return tableDataRequest, err
-	}
-
-	var period models.Period
-	period.StartISO = c.QueryParam("startDate")
-	period.EndISO = c.QueryParam("endDate")
-	period.Convert()
 
 	tableDataRequest.GetBuyerRequests(uid, period, status)
 
@@ -202,19 +196,9 @@ func (ctrl TableController) getBuyerRequests(c echo.Context, status int) (models
 	return tableDataRequest, nil
 }
 
-func (ctrl TableController) getFarmerRequests(c echo.Context, status int) (models.TableDataRequest, error) {
+func (ctrl TableController) getFarmerRequests(c echo.Context, uid models.UID, period models.Period, status int) (models.TableDataRequest, error) {
 
 	var tableDataRequest models.TableDataRequest
-
-	uid, err := ctrl.Services.UID.GetUID(c)
-	if err != nil {
-		return tableDataRequest, err
-	}
-
-	var period models.Period
-	period.StartISO = c.QueryParam("startDate")
-	period.EndISO = c.QueryParam("endDate")
-	period.Convert()
 
 	var farmerAccess models.FarmerAccessList
 	farmerAccess.Farmer.FillWithUID(&uid)
@@ -227,6 +211,19 @@ func (ctrl TableController) getFarmerRequests(c echo.Context, status int) (model
 	farmerAccess.Teams = append(farmerAccess.Teams, teams...)
 
 	tableDataRequest.GetFarmerRequests(farmerAccess, period, status)
+
+	if err := ctrl.Services.Tables.Get(c, &tableDataRequest); err != nil {
+		return tableDataRequest, err
+	}
+
+	return tableDataRequest, nil
+}
+
+func (ctrl TableController) getTlfRequests(c echo.Context, uid models.UID, period models.Period, status int) (models.TableDataRequest, error) {
+
+	var tableDataRequest models.TableDataRequest
+
+	tableDataRequest.GetTlfRequests(uid, period, status)
 
 	if err := ctrl.Services.Tables.Get(c, &tableDataRequest); err != nil {
 		return tableDataRequest, err
