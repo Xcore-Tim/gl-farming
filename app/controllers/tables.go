@@ -139,10 +139,21 @@ func (ctrl TableController) FarmerPipeline(c echo.Context) error {
 func (ctrl TableController) BuyerPipiline(c echo.Context) error {
 
 	var period models.Period
+	var uid models.UID
+
 	period.StartISO = c.QueryParam("startDate")
 	period.EndISO = c.QueryParam("endDate")
 	period.Convert()
+
 	teamleadID := c.QueryParam("teamleadID")
+	if teamleadID == "" {
+		var err error
+		uid, err = ctrl.Services.UID.GetUID(c)
+		if err != nil {
+			return c.String(http.StatusBadRequest, err.Error())
+		}
+		teamleadID = strconv.Itoa(uid.UserID)
+	}
 
 	var buyers models.EmployeePipeline
 	matchStage, groupStage := buyers.BuyerPipiline(period, teamleadID)

@@ -164,6 +164,11 @@ definitions:
           type: integer
         type: array
     type: object
+  models.FullAccessRequest:
+    properties:
+      farmer:
+        $ref: '#/definitions/models.Employee'
+    type: object
   models.Location:
     properties:
       _id:
@@ -664,6 +669,27 @@ paths:
       summary: Add access
       tags:
       - Farmer Access
+  /v2/farmerAccess/add/all:
+    put:
+      consumes:
+      - application/json
+      description: Sets full access to all teams for farmer
+      parameters:
+      - description: farmer uid
+        in: body
+        name: fullAccessRequest
+        schema:
+          $ref: '#/definitions/models.FullAccessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: Full access
+      tags:
+      - Farmer Access
   /v2/farmerAccess/get/all:
     get:
       consumes:
@@ -716,7 +742,7 @@ paths:
       tags:
       - Farmer Access
   /v2/farmerAccess/revoke:
-    delete:
+    put:
       consumes:
       - application/json
       description: revokes access to farmer
@@ -738,6 +764,87 @@ paths:
       summary: revoke access
       tags:
       - Farmer Access
+  /v2/farmerAccess/revoke/all:
+    put:
+      consumes:
+      - application/json
+      description: Sets full access to all teams for farmer
+      parameters:
+      - description: farmer uid
+        in: body
+        name: fullAccessRequest
+        schema:
+          $ref: '#/definitions/models.FullAccessRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: Full access
+      tags:
+      - Farmer Access
+  /v2/files/download/attachment:
+    get:
+      consumes:
+      - application/json
+      description: downloads attachment
+      parameters:
+      - description: file name
+        in: query
+        name: fileName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Download attachment
+      tags:
+      - Files
+  /v2/files/download/file:
+    get:
+      consumes:
+      - application/json
+      description: downloads file
+      parameters:
+      - description: file name
+        in: query
+        name: fileName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Download file
+      tags:
+      - Files
+  /v2/files/download/inline:
+    get:
+      consumes:
+      - application/json
+      description: downloads inline
+      parameters:
+      - description: file name
+        in: query
+        name: fileName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Download inline
+      tags:
+      - Files
   /v2/locations/create:
     post:
       consumes:

@@ -3,12 +3,14 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"gl-farming/app/constants/gipsyUI"
 	"gl-farming/app/models"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
@@ -18,6 +20,7 @@ type UIDService interface {
 	GetUID(echo.Context) (models.UID, error)
 	GetAdminToken() (string, error)
 	Login(models.UserCredentials) (models.UID, error)
+	Check(echo.Context) error
 	// GetAuthToken(*echo.Context) string
 }
 
@@ -26,6 +29,29 @@ type UIDServiceImpl struct {
 
 func NewUIDService() UIDService {
 	return &UIDServiceImpl{}
+}
+
+func (s UIDServiceImpl) Check(c echo.Context) error {
+
+	tokenString := s.GetAuthToken(c)
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return err
+	}
+
+	expTime, _ := claims["exp"].(int)
+	currentTime := time.Now().Unix()
+	if int64(expTime) > currentTime {
+		return errors.New("token has expired")
+	}
+
+	return nil
 }
 
 func (s UIDServiceImpl) GetUID(ctx echo.Context) (models.UID, error) {

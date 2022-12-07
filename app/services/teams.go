@@ -20,6 +20,8 @@ type TeamService interface {
 	GetTeams(*string) ([]int, error)
 	GetFarmers(string) ([]models.Employee, error)
 
+	FullAccess(echo.Context, string, *models.FarmerAccessList) error
+	FullRevoke(echo.Context, *models.FarmerAccessList) error
 	AddAccess(echo.Context, *models.AccessRequest) error
 	RevokeAccess(echo.Context, *models.AccessRequest) error
 	UpdateAccess(echo.Context, *models.AccessRequest) error
@@ -76,8 +78,11 @@ func (s TeamServiceImpl) GetTeams(adminToken *string) ([]int, error) {
 		return teams, nil
 	}
 
-	for _, team := range teamleads {
-		teams = append(teams, team.TeamID)
+	for _, teamlead := range teamleads {
+		if teamlead.TeamID == 0 {
+			continue
+		}
+		teams = append(teams, teamlead.TeamID)
 	}
 
 	teams = helper.Unique(teams)

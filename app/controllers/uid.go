@@ -34,6 +34,14 @@ func (ctrl UIDController) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, uid)
 }
 
+func (ctrl UIDController) Check(c echo.Context) error {
+
+	if err := ctrl.Service.Check(c); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	return c.String(http.StatusOK, "success")
+}
+
 func (ctrl UIDController) GetUID(c echo.Context) error {
 
 	if uid, err := ctrl.Service.GetUID(c); err == nil {

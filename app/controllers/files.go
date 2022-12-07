@@ -45,7 +45,8 @@ func (ctrl FileController) Upload(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	contentRange := c.Request().Header.Get("Content-Range")
+	// contentRange := c.Request().Header.Get("Content-Range")
+	contentRange := c.Request().Header.Get("C-Range")
 	rangeAndSize := strings.Split(contentRange, "/")
 	rangeParts := strings.Split(rangeAndSize[0], "-")
 
@@ -113,5 +114,60 @@ func (ctrl FileController) Upload(c echo.Context) error {
 
 	}
 
-	return c.String(http.StatusOK, "success")
+	return c.JSON(http.StatusOK, response)
+}
+
+// DownloadInline godoc
+// @Summary      Download inline
+// @Description  downloads inline
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Param        fileName    query     string  false  "file name"
+// @Success      200  {string}  string
+// @Router       /v2/files/download/inline [get]
+func (ctrl FileController) DownloadInline(c echo.Context) error {
+	fileName := c.QueryParam("fileName")
+	filePath := files.Static + "/" + fileName
+	return c.Inline(filePath, fileName)
+}
+
+// DownloadAttachment godoc
+// @Summary      Download attachment
+// @Description  downloads attachment
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Param        fileName    query     string  false  "file name"
+// @Success      200  {string}  string
+// @Router       /v2/files/download/attachment [get]
+func (ctrl FileController) DownloadAttachment(c echo.Context) error {
+	fileName := c.QueryParam("fileName")
+	filePath := files.Static + "/" + fileName
+	if err := c.Attachment(filePath, fileName); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	return c.Attachment(filePath, fileName)
+}
+
+// DownloadFile godoc
+// @Summary      Download file
+// @Description  downloads file
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Param        fileName    query     string  false  "file name"
+// @Success      200  {string}  string
+// @Router       /v2/files/download/file [get]
+func (ctrl FileController) Download(c echo.Context) error {
+	fileName := c.QueryParam("fileName")
+	filePath := files.Static + "/" + fileName
+	if err := c.File(filePath); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	return c.File(filePath)
+}
+
+func (ctrl FileController) DownloadPage(c echo.Context) error {
+	return c.File("index.html")
 }

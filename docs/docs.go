@@ -562,6 +562,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/v2/farmerAccess/add/all": {
+            "put": {
+                "description": "Sets full access to all teams for farmer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "Full access",
+                "parameters": [
+                    {
+                        "description": "farmer uid",
+                        "name": "fullAccessRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.FullAccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/farmerAccess/get/all": {
             "get": {
                 "description": "returns all accesses",
@@ -641,7 +674,7 @@ const docTemplate = `{
             }
         },
         "/v2/farmerAccess/revoke": {
-            "delete": {
+            "put": {
                 "description": "revokes access to farmer",
                 "consumes": [
                     "application/json"
@@ -671,6 +704,132 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.AccessRequest"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/farmerAccess/revoke/all": {
+            "put": {
+                "description": "Sets full access to all teams for farmer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Farmer Access"
+                ],
+                "summary": "Full access",
+                "parameters": [
+                    {
+                        "description": "farmer uid",
+                        "name": "fullAccessRequest",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.FullAccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/files/download/attachment": {
+            "get": {
+                "description": "downloads attachment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Download attachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "file name",
+                        "name": "fileName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/files/download/file": {
+            "get": {
+                "description": "downloads file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Download file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "file name",
+                        "name": "fileName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/files/download/inline": {
+            "get": {
+                "description": "downloads inline",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Download inline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "file name",
+                        "name": "fileName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1340,6 +1499,14 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "models.FullAccessRequest": {
+            "type": "object",
+            "properties": {
+                "farmer": {
+                    "$ref": "#/definitions/models.Employee"
                 }
             }
         },

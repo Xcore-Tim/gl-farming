@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	userRole "gl-farming/app/constants/roles"
+	"gl-farming/app/helper"
 	"gl-farming/app/models"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +29,66 @@ func (s TeamServiceImpl) GetFarmers(adminToken string) ([]models.Employee, error
 	}
 
 	return farmers, nil
+}
+
+func (s TeamServiceImpl) FullAccess(c echo.Context, adminToken string, farmerAccessList *models.FarmerAccessList) error {
+
+	teams, err := s.GetTeams(&adminToken)
+	if err != nil {
+		return err
+	}
+
+	teamlist, err := s.GetAccess(c, farmerAccessList)
+	if err != nil {
+		return err
+	}
+
+	var inaccessbileTeams []int
+
+	for _, v := range teams {
+		if found := helper.BinarySearch(v, teamlist); !found {
+			inaccessbileTeams = append(inaccessbileTeams, v)
+		}
+	}
+
+	for _, team := range inaccessbileTeams {
+		var newFarmerAccess = models.AccessRequest{
+			Farmer: farmerAccessList.Farmer,
+			TeamID: team,
+		}
+		if err := s.AddAccess(c, &newFarmerAccess); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (s TeamServiceImpl) FullRevoke(c echo.Context, farmerAccessList *models.FarmerAccessList) error {
+
+	for _, team := range farmerAccessList.Teams {
+
+		if team == 0 {
+			continue
+		}
+
+		var farmerAccess = models.AccessRequest{
+			Farmer: farmerAccessList.Farmer,
+			TeamID: team,
+		}
+
+		filter := bson.D{
+			bson.E{Key: "farmer", Value: farmerAccess.Farmer},
+			bson.E{Key: "team", Value: farmerAccess.TeamID},
+		}
+
+		result, _ := s.collection.DeleteOne(c.Request().Context(), filter)
+		if result.DeletedCount != 1 {
+			return errors.New("no farmer access found")
+		}
+	}
+	return nil
 }
 
 func (s TeamServiceImpl) AddAccess(c echo.Context, farmerAccess *models.AccessRequest) error {
@@ -98,6 +159,9 @@ func (s TeamServiceImpl) GetAccess(c echo.Context, farmerAccess *models.FarmerAc
 			return accessList, err
 		}
 		farmerAccess.ConvertID()
+		if farmerAccess.Team == 0 {
+			continue
+		}
 		accessList = append(accessList, farmerAccess.Team)
 	}
 

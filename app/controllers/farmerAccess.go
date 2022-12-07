@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"gl-farming/app/helper"
 	"gl-farming/app/models"
 	"gl-farming/app/services"
 	"net/http"
@@ -44,6 +45,72 @@ func (ctrl FarmerAccessController) Add(c echo.Context) error {
 	return c.String(http.StatusOK, "success")
 }
 
+// FullAccess godoc
+// @Summary      Full access
+// @Description  Sets full access to all teams for farmer
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Param        fullAccessRequest    body     models.FullAccessRequest  false  "farmer uid"
+// @Success      200  {string}  string	"success"
+// @Router       /v2/farmerAccess/add/all [put]
+func (ctrl FarmerAccessController) FullAccess(c echo.Context) error {
+
+	adminToken, err := ctrl.Services.UID.GetAdminToken()
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	var fullAccessRequest models.FullAccessRequest
+	if err := c.Bind(&fullAccessRequest); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	farmerAccessList := models.FarmerAccessList{
+		Farmer: fullAccessRequest.Farmer,
+		Teams:  make([]int, 0, 1),
+	}
+	if err = ctrl.Services.Teams.FullAccess(c, adminToken, &farmerAccessList); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	return c.String(http.StatusOK, "success")
+}
+
+// FullAccess godoc
+// @Summary      Full access
+// @Description  Sets full access to all teams for farmer
+// @Tags         Farmer Access
+// @Accept       json
+// @Produce      json
+// @Param        fullAccessRequest    body     models.FullAccessRequest  false  "farmer uid"
+// @Success      200  {string}  string	"success"
+// @Router       /v2/farmerAccess/revoke/all [put]
+func (ctrl FarmerAccessController) FullRevoke(c echo.Context) error {
+
+	var fullAccessRequest models.FullAccessRequest
+	if err := c.Bind(&fullAccessRequest); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	var farmerAccessList = models.FarmerAccessList{
+		Farmer: fullAccessRequest.Farmer,
+		Teams:  make([]int, 1),
+	}
+
+	teams, err := ctrl.Services.Teams.GetAccess(c, &farmerAccessList)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	farmerAccessList.Teams = append(farmerAccessList.Teams, teams...)
+
+	if err := ctrl.Services.Teams.FullRevoke(c, &farmerAccessList); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	return c.String(http.StatusOK, "success")
+}
+
 // Revoke godoc
 // @Summary      revoke access
 // @Description  revokes access to farmer
@@ -52,7 +119,7 @@ func (ctrl FarmerAccessController) Add(c echo.Context) error {
 // @Produce      json
 // @Param        accessRequest    body     models.AccessRequest  false  "farmer uid"
 // @Success      200  {array}  models.AccessRequest
-// @Router       /v2/farmerAccess/revoke [delete]
+// @Router       /v2/farmerAccess/revoke [put]
 func (ctrl FarmerAccessController) Revoke(c echo.Context) error {
 
 	var revokeAccessRequest models.AccessRequest
@@ -67,26 +134,6 @@ func (ctrl FarmerAccessController) Revoke(c echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, "success")
-}
-
-func (ctrl FarmerAccessController) GetAccess(c echo.Context) error {
-
-	// var farmer models.Employee
-
-	// if err := c.Bind(&farmer); err != nil {
-	// 	return c.String(http.StatusBadRequest, err.Error())
-	// }
-
-	// var farmerAccess models.FarmerAccess
-
-	// farmerAccess.Farmer = farmer
-
-	// accessList, err := ctrl.Services.Teams.GetAccess(c, &farmerAccess)
-	// if err != nil {
-	// 	return c.String(http.StatusBadRequest, err.Error())
-	// }
-
-	return c.JSON(http.StatusOK, 1)
 }
 
 // GetAll godoc
@@ -124,13 +171,19 @@ func (ctrl FarmerAccessController) GetTeams(c echo.Context) error {
 	}
 
 	teams, err := ctrl.Services.Teams.GetTeams(&adminToken)
+
+	for i, v := range teams {
+		if v == 0 {
+			teams = helper.RemoveElementFromSlice(teams, i)
+			break
+		}
+	}
+
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	c.JSON(http.StatusOK, teams)
-
-	return nil
+	return c.JSON(http.StatusOK, teams)
 }
 
 // GetFarmers godoc
@@ -155,9 +208,11 @@ func (ctrl FarmerAccessController) GetFarmers(c echo.Context) error {
 
 	var accessList []models.FarmerAccessList
 	for _, farmer := range farmers {
-		var farmerAccess models.FarmerAccessList
-		farmerAccess.Farmer = farmer
-		farmerAccess.Teams = make([]int, 1)
+
+		var farmerAccess = models.FarmerAccessList{
+			Farmer: farmer,
+			Teams:  make([]int, 1),
+		}
 
 		teams, err := ctrl.Services.Teams.GetAccess(c, &farmerAccess)
 		if err != nil {
@@ -165,11 +220,16 @@ func (ctrl FarmerAccessController) GetFarmers(c echo.Context) error {
 		}
 		farmerAccess.Teams = append(farmerAccess.Teams, teams...)
 
+		for i, v := range farmerAccess.Teams {
+			if v == 0 {
+				farmerAccess.Teams = helper.RemoveElementFromSlice(farmerAccess.Teams, i)
+			}
+		}
+
 		accessList = append(accessList, farmerAccess)
 	}
 
 	return c.JSON(http.StatusOK, accessList)
-
 }
 
 func (ctrl FarmerAccessController) DeleteAll(c echo.Context) error {

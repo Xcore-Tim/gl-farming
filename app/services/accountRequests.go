@@ -13,8 +13,8 @@ import (
 )
 
 type AccountRequestService interface {
+	Create(echo.Context, *models.AccountRequest) (string, error)
 	Cancel(echo.Context, *models.CancelAccountRequest) error
-	Create(echo.Context, *models.AccountRequest) error
 	Take(echo.Context, *models.TakeAccountRequest) error
 	Update(echo.Context, *models.AccountRequest) error
 	Complete(echo.Context, *models.AccountRequest) error
@@ -34,13 +34,16 @@ func NewAccountRequestService(collection *mongo.Collection) AccountRequestServic
 	}
 }
 
-func (s AccountRequestServiceImpl) Create(c echo.Context, accountRequest *models.AccountRequest) error {
+func (s AccountRequestServiceImpl) Create(c echo.Context, accountRequest *models.AccountRequest) (string, error) {
 
-	if _, err := s.collection.InsertOne(c.Request().Context(), accountRequest); err != nil {
-		return err
+	result, err := s.collection.InsertOne(c.Request().Context(), accountRequest)
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+
+	if !ok {
+		return oid.Hex(), err
 	}
 
-	return nil
+	return oid.Hex(), nil
 }
 
 func (s AccountRequestServiceImpl) Cancel(c echo.Context, cancellRequest *models.CancelAccountRequest) error {

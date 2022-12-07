@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gl-farming/app/constants/files"
+	mongoParams "gl-farming/app/constants/mongo"
 	"gl-farming/app/controllers"
 	"gl-farming/app/services"
 	"gl-farming/database"
@@ -27,7 +28,7 @@ func main() {
 
 	ctx := context.TODO()
 
-	connectionAddress := "mongodb://localhost:27017"
+	connectionAddress := mongoParams.ProdAddress
 	mongoConnection := options.Client().ApplyURI(connectionAddress)
 	client, err := mongo.Connect(ctx, mongoConnection)
 	defer client.Disconnect(ctx)
@@ -75,14 +76,20 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 
 	root := e.Group("/v2")
 	root.GET("/swagger/*", echoSwagger.WrapHandler)
+	root.GET("/", appControllers.Files.DownloadPage)
 
 	auth := root.Group("/auth")
 	auth.POST("/login", appControllers.UID.Login)
 	auth.GET("/uid", appControllers.UID.GetUID)
 	auth.GET("/uid/admin", appControllers.UID.GetServiceAdminUID)
+	auth.GET("/check", appControllers.UID.Check)
 
 	files := root.Group("/files")
 	files.POST("/upload", appControllers.Files.Upload)
+	filesDownload := files.Group("/download")
+	filesDownload.GET("/file", appControllers.Files.Download)
+	filesDownload.GET("/inline", appControllers.Files.DownloadInline)
+	filesDownload.GET("/attachment", appControllers.Files.DownloadAttachment)
 
 	accountTypes := root.Group("/accountTypes")
 	accountTypes.POST("/create", appControllers.AccountTypes.Create)
@@ -96,11 +103,12 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	farmerAccess := root.Group("/farmerAccess")
 	farmerAccess.POST("/add", appControllers.FarmerAccessController.Add)
 	farmerAccess.PUT("/revoke", appControllers.FarmerAccessController.Revoke)
+	farmerAccess.PUT("/add/all", appControllers.FarmerAccessController.FullAccess)
+	farmerAccess.PUT("/revoke/all", appControllers.FarmerAccessController.FullRevoke)
 	farmerAccessGet := farmerAccess.Group("/get")
 	farmerAccessGet.GET("/teams", appControllers.FarmerAccessController.GetTeams)
 	farmerAccessGet.GET("/farmers", appControllers.FarmerAccessController.GetFarmers)
 	farmerAccessGet.GET("/all", appControllers.FarmerAccessController.GetAll)
-	farmerAccessGet.GET("/access", appControllers.FarmerAccessController.GetAccess)
 	farmerAccessDelete := farmerAccess.Group("/delete")
 	farmerAccessDelete.DELETE("/all", appControllers.FarmerAccessController.DeleteAll)
 

@@ -81,11 +81,12 @@ func (ctrl AccountRequestController) Create(c echo.Context) error {
 	accountRequest.Description = createAccountRequest.Description
 	accountRequest.DateCreated = time.Now().Unix()
 
-	if err := ctrl.Services.AccountRequests.Create(c, &accountRequest); err != nil {
+	oid, err := ctrl.Services.AccountRequests.Create(c, &accountRequest)
+	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	return c.String(http.StatusOK, "success")
+	return c.String(http.StatusOK, oid)
 }
 
 // Cancel godoc
