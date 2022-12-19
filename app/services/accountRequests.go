@@ -100,6 +100,7 @@ func (s AccountRequestServiceImpl) Update(c echo.Context, accountRequest *models
 	update := bson.D{bson.E{Key: "$set", Value: bson.D{
 		bson.E{Key: "location", Value: accountRequest.Location},
 		bson.E{Key: "type", Value: accountRequest.Type},
+		bson.E{Key: "description", Value: accountRequest.Description},
 		bson.E{Key: "quantity", Value: accountRequest.Quantity},
 		bson.E{Key: "currency", Value: accountRequest.Currency},
 		bson.E{Key: "rate", Value: accountRequest.Rate},

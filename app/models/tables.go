@@ -25,12 +25,12 @@ type TableData struct {
 	Price    float64  `json:"price,omitempty" bson:"price,omitempty"`
 	Total    float64  `json:"total,omitempty" bson:"total,omitempty"`
 
-	CrossRate float64 `json:"crossRate" bson:"crossRate,omitempty"`
+	// CrossRate float64 `json:"crossRate" bson:"crossRate,omitempty"`
 
 	BaseCurrency Currency `json:"baseCurrency,omitempty" bson:"baseCurrency,omitempty"`
-	BaseRate     float64  `json:"baseRate,omitempty" bson:"baseRate,omitempty"`
-	BasePrice    float64  `json:"basePrice,omitempty" bson:"basePrice,omitempty"`
-	BaseTotal    float64  `json:"baseTotal,omitempty" bson:"baseTotal,omitempty"`
+	// BaseRate     float64  `json:"baseRate,omitempty" bson:"baseRate,omitempty"`
+	// BasePrice    float64  `json:"basePrice,omitempty" bson:"basePrice,omitempty"`
+	// BaseTotal    float64  `json:"baseTotal,omitempty" bson:"baseTotal,omitempty"`
 
 	Buyer  Employee `json:"buyer,omitempty" bson:"buyer,omitempty"`
 	Farmer Employee `json:"farmer,omitempty" bson:"farmer,omitempty"`
@@ -486,6 +486,7 @@ func (a EmployeePipeline) BuyerPipiline(period Period, teamleadID string) (match
 		bson.E{Key: "$and", Value: bson.A{
 			bson.M{"dateCreated": bson.M{"$gte": period.StartDate.Unix()}},
 			bson.M{"dateCreated": bson.M{"$lte": period.EndDate.Unix()}},
+			bson.M{"buyer.role": bson.M{"$ne": 2}},
 		}},
 	}}}
 

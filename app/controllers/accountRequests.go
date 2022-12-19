@@ -181,31 +181,36 @@ func (ctrl AccountRequestController) Update(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	accountRequest.UpdatedBy.FillWithUID(&uid)
-
-	if updateAccountRequest.TypeID != accountRequest.Type.ID {
-		if accountRequest.Type, err = ctrl.Services.AccountTypes.Get(c, updateAccountRequest.TypeID); err != nil {
-			return c.String(http.StatusBadRequest, "bad account type")
+	if updateAccountRequest.TypeID != "" {
+		if updateAccountRequest.TypeID != accountRequest.Type.ID {
+			if accountRequest.Type, err = ctrl.Services.AccountTypes.Get(c, updateAccountRequest.TypeID); err != nil {
+				return c.String(http.StatusBadRequest, "bad account type")
+			}
 		}
 	}
 
-	if updateAccountRequest.LocationID != accountRequest.Location.ID {
-		if accountRequest.Location, err = ctrl.Services.Locations.Get(c, updateAccountRequest.LocationID); err != nil {
-			return c.String(http.StatusBadRequest, "bad location")
+	if updateAccountRequest.LocationID != "" {
+		if updateAccountRequest.LocationID != accountRequest.Location.ID {
+			if accountRequest.Location, err = ctrl.Services.Locations.Get(c, updateAccountRequest.LocationID); err != nil {
+				return c.String(http.StatusBadRequest, "bad location")
+			}
 		}
 	}
 
 	accountRequest.Quantity = updateAccountRequest.Quantity
+	accountRequest.Description = updateAccountRequest.Description
 
 	if updateAccountRequest.Price != 0 {
 		accountRequest.Price = updateAccountRequest.Price
 		accountRequest.Total = helper.CalculateTotal(updateAccountRequest.Quantity, updateAccountRequest.Price)
-		if accountRequest.Currency.ID != updateAccountRequest.CurrencyID {
-			if accountRequest.Currency, err = ctrl.Services.Currency.Get(c, updateAccountRequest.CurrencyID); err != nil {
-				return c.String(http.StatusBadRequest, "bad currency")
+		if updateAccountRequest.CurrencyID != "" {
+			if accountRequest.Currency.ID != updateAccountRequest.CurrencyID {
+				if accountRequest.Currency, err = ctrl.Services.Currency.Get(c, updateAccountRequest.CurrencyID); err != nil {
+					return c.String(http.StatusBadRequest, "bad currency")
+				}
 			}
-			ctrl.setCurrency(c, &accountRequest)
 		}
+		ctrl.setCurrency(c, &accountRequest)
 	}
 
 	accountRequest.DateUpdated = time.Now().Unix()

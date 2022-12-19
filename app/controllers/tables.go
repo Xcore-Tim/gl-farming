@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"gl-farming/app/helper"
 	"gl-farming/app/models"
 	"gl-farming/app/services"
 	"net/http"
@@ -88,6 +89,8 @@ func (ctrl TableController) GetTeamleadTables(c echo.Context) error {
 		tableData, err = ctrl.getBuyerRequests(c, teamleadTableRequest.UID, teamleadTableRequest.Period, teamleadTableRequest.Status)
 	case 6:
 		tableData, err = ctrl.getFarmerRequests(c, teamleadTableRequest.UID, teamleadTableRequest.Period, teamleadTableRequest.Status)
+	case 5:
+		tableData, err = ctrl.getTlfRequests(c, teamleadTableRequest.UID, teamleadTableRequest.Period, teamleadTableRequest.Status)
 	}
 
 	if err != nil {
@@ -120,6 +123,11 @@ func (ctrl TableController) FarmerPipeline(c echo.Context) error {
 	atd, err := ctrl.Services.Tables.AggregateDataByUID(c, matchStage, groupStage)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	for _, v := range atd {
+		v.Total = helper.RoundFloat(v.Total, 2)
+		v.Price = helper.RoundFloat(v.Price, 2)
 	}
 
 	return c.JSON(http.StatusOK, atd)
@@ -163,6 +171,11 @@ func (ctrl TableController) BuyerPipiline(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	for _, v := range atd {
+		v.Total = helper.RoundFloat(v.Total, 2)
+		v.Price = helper.RoundFloat(v.Price, 2)
+	}
+
 	return c.JSON(http.StatusOK, atd)
 }
 
@@ -189,6 +202,11 @@ func (ctrl TableController) TeamleadPipiline(c echo.Context) error {
 	atd, err := ctrl.Services.Tables.AggregateDataByTeam(c, matchStage, groupStage)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	for _, v := range atd {
+		v.Total = helper.RoundFloat(v.Total, 2)
+		v.Price = helper.RoundFloat(v.Price, 2)
 	}
 
 	return c.JSON(http.StatusOK, atd)
