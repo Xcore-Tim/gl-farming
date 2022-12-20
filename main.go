@@ -31,7 +31,6 @@ func main() {
 	ctx := context.TODO()
 
 	connectionAddress := mongoParams.GetConnectionString()
-	// connectionAddress := mongoParams.AzureProdAddress
 	mongoConnection := options.Client().ApplyURI(connectionAddress)
 	client, err := mongo.Connect(ctx, mongoConnection)
 	defer client.Disconnect(ctx)

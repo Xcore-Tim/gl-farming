@@ -1317,6 +1317,12 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "driveID": {
+                    "type": "string"
+                },
+                "driveLink": {
+                    "type": "string"
+                },
                 "farmer": {
                     "$ref": "#/definitions/models.Employee"
                 },
@@ -1555,15 +1561,6 @@ const docTemplate = `{
                 "baseCurrency": {
                     "$ref": "#/definitions/models.Currency"
                 },
-                "basePrice": {
-                    "type": "number"
-                },
-                "baseRate": {
-                    "type": "number"
-                },
-                "baseTotal": {
-                    "type": "number"
-                },
                 "buyer": {
                     "$ref": "#/definitions/models.Employee"
                 },
@@ -1575,9 +1572,6 @@ const docTemplate = `{
                 },
                 "completedBy": {
                     "$ref": "#/definitions/models.Employee"
-                },
-                "crossRate": {
-                    "type": "number"
                 },
                 "currency": {
                     "$ref": "#/definitions/models.Currency"
@@ -1601,6 +1595,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "driveID": {
+                    "type": "string"
+                },
+                "driveLink": {
                     "type": "string"
                 },
                 "farmer": {

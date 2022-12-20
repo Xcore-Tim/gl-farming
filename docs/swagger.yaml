@@ -44,6 +44,10 @@ definitions:
         type: integer
       description:
         type: string
+      driveID:
+        type: string
+      driveLink:
+        type: string
       farmer:
         $ref: '#/definitions/models.Employee'
       fileName:
@@ -198,12 +202,6 @@ definitions:
         type: string
       baseCurrency:
         $ref: '#/definitions/models.Currency'
-      basePrice:
-        type: number
-      baseRate:
-        type: number
-      baseTotal:
-        type: number
       buyer:
         $ref: '#/definitions/models.Employee'
       cancellationCause:
@@ -212,8 +210,6 @@ definitions:
         $ref: '#/definitions/models.Employee'
       completedBy:
         $ref: '#/definitions/models.Employee'
-      crossRate:
-        type: number
       currency:
         $ref: '#/definitions/models.Currency'
       dateCancelled:
@@ -229,6 +225,10 @@ definitions:
       dateUpdated:
         type: integer
       description:
+        type: string
+      driveID:
+        type: string
+      driveLink:
         type: string
       farmer:
         $ref: '#/definitions/models.Employee'

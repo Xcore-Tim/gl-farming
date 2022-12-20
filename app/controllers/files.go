@@ -98,10 +98,10 @@ func (ctrl FileController) Upload(c echo.Context) error {
 
 		ctrl.Services.Files.DeleteFile(filePath)
 
-		// oldFile, isFound := ctrl.Services.Files.CheckFile(c, oid)
+		// oldId, isFound := ctrl.Services.Files.CheckFile(c, oid)
 
 		// if isFound {
-		// 	if err := ctrl.Services.Files.DeletePreviousFile(oldFile); err != nil {
+		// 	if err := googleDriveAPI.DeleteFile(oldId); err != nil {
 		// 		return c.String(http.StatusConflict, err.Error())
 		// 	}
 		// }

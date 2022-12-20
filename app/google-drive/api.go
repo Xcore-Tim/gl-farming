@@ -55,17 +55,20 @@ func createFile(service *drive.Service, name string, mimeType string, content io
 	return file, nil
 }
 
-func Download(fileId string) {
+func DeleteFile(fileId string) error {
 
-	// client := serviceAccount(googleDriveParams.Credentials)
+	client := serviceAccount(googleDriveParams.Credentials)
 
-	// srv, err := drive.New(client)
-	// if err != nil {
-	// 	log.Fatalf("Unable to retrieve drive Client %v", err)
-	// }
+	srv, err := drive.New(client)
+	if err != nil {
+		log.Fatalf("Unable to retrieve drive Client %v", err)
+	}
 
-	// file, err := srv.Files.Get(fileId).Do()
+	if err = srv.Files.Delete(fileId).Do(); err != nil {
+		return err
+	}
 
+	return nil
 }
 
 func Upload(fileName, filePath string) (string, string) {
@@ -87,7 +90,7 @@ func Upload(fileName, filePath string) (string, string) {
 	}
 
 	//give your folder id here in which you want to upload or create new directory
-	folderId := "1yhuIEMYIoTZFvufpGP4ncA8vUpA2pfDa"
+	folderId := googleDriveParams.FolderId
 
 	// Step 4: create the file and upload
 	file, err := createFile(srv, fileName, "application/octet-stream", f, folderId)

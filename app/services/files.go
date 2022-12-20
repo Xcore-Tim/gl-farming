@@ -54,7 +54,7 @@ func (s FileServiceImpl) CreateNewFile(uploadFile *multipart.FileHeader, fileExt
 	return fileName, filePath, err
 }
 
-func (s FileServiceImpl) CheckFile(c echo.Context, oid string) (oldFile string, isFound bool) {
+func (s FileServiceImpl) CheckFile(c echo.Context, oid string) (driveId string, isFound bool) {
 
 	requestID, err := primitive.ObjectIDFromHex(oid)
 
@@ -71,7 +71,7 @@ func (s FileServiceImpl) CheckFile(c echo.Context, oid string) (oldFile string, 
 	}
 
 	if accountRequest.FileName != "" {
-		oldFile = files.Static + "/" + accountRequest.FileName
+		driveId = accountRequest.DriveID
 		isFound = true
 		return
 	}

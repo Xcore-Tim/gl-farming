@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	TestAddress      string = "mongodb://localhost:27017"
-	AzureProdAddress string = "mongodb://farming-mongodb:7wnnOjnZgpq4Ruprtqq5qXxsS7ZfCF8LxhHJYIZgzenmAJc3l1ZrFEsT5AuCYXjWtvGAJ6Fdfj0lACDbWPXUiw==@farming-mongodb.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@farming-mongodb@"
+	TestAddress string = "mongodb://localhost:27017"
 )
 
 func GetConnectionString() string {
@@ -18,8 +17,8 @@ func GetConnectionString() string {
 	DB_USER := "gipsy-dev"
 	DB_PASS := "gipsydev"
 
-	CACERT := "/etc/ssl/certs/ya-root.crt"
-	// CACERT := "ya-root.crt"
+	// CACERT := "/etc/ssl/certs/ya-root.crt"
+	CACERT := "ya-root.crt"
 
 	url := fmt.Sprintf("mongodb://%s:%s@%s/%s?tls=true&tlsCaFile=%s",
 		DB_USER,

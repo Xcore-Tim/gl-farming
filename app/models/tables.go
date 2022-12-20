@@ -142,9 +142,11 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "farmer", Value: 1},
 			bson.E{Key: "description", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Inwork:
 		t.Projection = bson.D{
@@ -159,9 +161,11 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "takenBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Complete:
 		t.Projection = bson.D{
@@ -182,13 +186,15 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateCompleted", Value: 1},
 			bson.E{Key: "completedBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 
 	case requestStatus.Cancelled:
@@ -210,13 +216,15 @@ func (t *TableDataRequest) GetBuyerRequests(uid UID, period Period, status int) 
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "cancellationCause", Value: 1},
 			bson.E{Key: "dateCancelled", Value: 1},
 			bson.E{Key: "cancelledBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	}
 }
@@ -256,9 +264,11 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "quantity", Value: 1},
 			bson.E{Key: "description", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Inwork:
 
@@ -274,9 +284,11 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "takenBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 
 	case requestStatus.Complete:
@@ -298,13 +310,15 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateCompleted", Value: 1},
 			bson.E{Key: "completedBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Cancelled:
 		t.Projection = bson.D{
@@ -325,13 +339,15 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "cancellationCause", Value: 1},
 			bson.E{Key: "dateCancelled", Value: 1},
 			bson.E{Key: "cancelledBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	}
 }
@@ -369,9 +385,11 @@ func (t *TableDataRequest) GetTlfRequests(uid UID, period Period, status int) {
 			bson.E{Key: "quantity", Value: 1},
 			bson.E{Key: "description", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Inwork:
 
@@ -387,9 +405,11 @@ func (t *TableDataRequest) GetTlfRequests(uid UID, period Period, status int) {
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "takenBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 
 	case requestStatus.Complete:
@@ -411,13 +431,15 @@ func (t *TableDataRequest) GetTlfRequests(uid UID, period Period, status int) {
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "dateCompleted", Value: 1},
 			bson.E{Key: "completedBy", Value: 1},
 			bson.E{Key: "updatedBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	case requestStatus.Cancelled:
 		t.Projection = bson.D{
@@ -438,13 +460,15 @@ func (t *TableDataRequest) GetTlfRequests(uid UID, period Period, status int) {
 			bson.E{Key: "basePrice", Value: 1},
 			bson.E{Key: "baseTotal", Value: 1},
 			bson.E{Key: "description", Value: 1},
-			bson.E{Key: "fileName", Value: 1},
 			bson.E{Key: "dateCreated", Value: 1},
 			bson.E{Key: "dateTaken", Value: 1},
 			bson.E{Key: "dateUpdated", Value: 1},
 			bson.E{Key: "cancellationCause", Value: 1},
 			bson.E{Key: "dateCancelled", Value: 1},
 			bson.E{Key: "cancelledBy", Value: 1},
+			bson.E{Key: "fileName", Value: 1},
+			bson.E{Key: "driveID", Value: 1},
+			bson.E{Key: "driveLink", Value: 1},
 		}
 	}
 }
