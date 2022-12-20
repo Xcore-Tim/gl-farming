@@ -39,7 +39,9 @@ type AccountRequest struct {
 	Description       string `json:"description" bson:"description"`
 	CancellationCause string `json:"cancellationCause" bson:"cancellationCause"`
 
-	FileName string `json:"fileName" bson:"fileName"`
+	FileName  string `json:"fileName,omitempty" bson:"fileName,omitempty"`
+	DriveID   string `json:"driveID,omitempty" bson:"driveID,omitempty"`
+	DriveLink string `json:"driveLink,omitempty" bson:"driveLink,omitempty"`
 
 	DateCreated   int64 `json:"dateCreated" bson:"dateCreated"`
 	DateTaken     int64 `json:"dateTaken" bson:"dateTaken"`

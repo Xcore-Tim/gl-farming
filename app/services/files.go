@@ -16,9 +16,9 @@ import (
 
 type FileService interface {
 	CreateNewFile(*multipart.FileHeader, string) (fileName string, filePath string, err error)
-	CheckPreviousFile(echo.Context, string) (oldFile string, isFound bool)
-	UpdateDownloadLink(echo.Context, string, string) error
-	DeletePreviousFile(string) error
+	CheckFile(echo.Context, string) (oldFile string, isFound bool)
+	UpdateDownloadLink(echo.Context, *models.FileData, string) error
+	DeleteFile(string) error
 }
 
 type FileServiceImpl struct {
@@ -54,7 +54,7 @@ func (s FileServiceImpl) CreateNewFile(uploadFile *multipart.FileHeader, fileExt
 	return fileName, filePath, err
 }
 
-func (s FileServiceImpl) CheckPreviousFile(c echo.Context, oid string) (oldFile string, isFound bool) {
+func (s FileServiceImpl) CheckFile(c echo.Context, oid string) (oldFile string, isFound bool) {
 
 	requestID, err := primitive.ObjectIDFromHex(oid)
 
@@ -79,7 +79,7 @@ func (s FileServiceImpl) CheckPreviousFile(c echo.Context, oid string) (oldFile 
 	return
 }
 
-func (s FileServiceImpl) UpdateDownloadLink(c echo.Context, fileName, oid string) error {
+func (s FileServiceImpl) UpdateDownloadLink(c echo.Context, fileData *models.FileData, oid string) error {
 
 	requestID, err := primitive.ObjectIDFromHex(oid)
 
@@ -89,7 +89,9 @@ func (s FileServiceImpl) UpdateDownloadLink(c echo.Context, fileName, oid string
 
 	filter := bson.D{bson.E{Key: "_id", Value: requestID}}
 	update := bson.D{bson.E{Key: "$set", Value: bson.D{
-		bson.E{Key: "fileName", Value: fileName},
+		bson.E{Key: "fileName", Value: fileData.FileName},
+		bson.E{Key: "driveID", Value: fileData.DriveID},
+		bson.E{Key: "driveLink", Value: fileData.DriveLink},
 	}}}
 
 	result := s.collection.FindOneAndUpdate(c.Request().Context(), filter, update)
@@ -101,7 +103,7 @@ func (s FileServiceImpl) UpdateDownloadLink(c echo.Context, fileName, oid string
 	return nil
 }
 
-func (s FileServiceImpl) DeletePreviousFile(filePath string) error {
+func (s FileServiceImpl) DeleteFile(filePath string) error {
 	err := os.Remove(filePath)
 	return err
 }

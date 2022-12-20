@@ -44,7 +44,9 @@ type TableData struct {
 	Description       string `json:"description,omitempty" bson:"description,omitempty"`
 	CancellationCause string `json:"cancellationCause,omitempty" bson:"cancellationCause,omitempty"`
 
-	FileName string `json:"fileName,omitempty" bson:"fileName,omitempty"`
+	FileName  string `json:"fileName,omitempty" bson:"fileName,omitempty"`
+	DriveID   string `json:"driveID,omitempty" bson:"driveID,omitempty"`
+	DriveLink string `json:"driveLink,omitempty" bson:"driveLink,omitempty"`
 
 	DateCreated   int64 `json:"dateCreated,omitempty" bson:"dateCreated,omitempty"`
 	DateTaken     int64 `json:"dateTaken,omitempty" bson:"dateTaken,omitempty"`

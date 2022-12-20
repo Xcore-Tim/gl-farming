@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"gl-farming/app/constants/files"
+	googleDriveAPI "gl-farming/app/google-drive"
+	"gl-farming/app/models"
 	"gl-farming/app/services"
 	"io"
 	"net/http"
@@ -88,20 +90,29 @@ func (ctrl FileController) Upload(c echo.Context) error {
 
 		if err != nil {
 			return c.String(http.StatusConflict, err.Error())
-
 		}
+
+		driveID, driveLink := googleDriveAPI.Upload(fileName, filePath)
 
 		oid := c.QueryParam("oid")
 
-		oldFile, isFound := ctrl.Services.Files.CheckPreviousFile(c, oid)
+		ctrl.Services.Files.DeleteFile(filePath)
 
-		if isFound {
-			if err := ctrl.Services.Files.DeletePreviousFile(oldFile); err != nil {
-				return c.String(http.StatusConflict, err.Error())
-			}
+		// oldFile, isFound := ctrl.Services.Files.CheckFile(c, oid)
+
+		// if isFound {
+		// 	if err := ctrl.Services.Files.DeletePreviousFile(oldFile); err != nil {
+		// 		return c.String(http.StatusConflict, err.Error())
+		// 	}
+		// }
+
+		var fileData = models.FileData{
+			FileName:  fileName,
+			DriveID:   driveID,
+			DriveLink: driveLink,
 		}
 
-		if err := ctrl.Services.Files.UpdateDownloadLink(c, fileName, oid); err != nil {
+		if err := ctrl.Services.Files.UpdateDownloadLink(c, &fileData, oid); err != nil {
 			response.RequestMessage = "Error updating account request"
 		}
 
