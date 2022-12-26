@@ -45,9 +45,10 @@ func (s UIDServiceImpl) Check(c echo.Context) error {
 		return err
 	}
 
-	expTime, _ := claims["exp"].(int)
+	// expTime, _ := claims["exp"].(int)
+	expTime, _ := claims["exp"].(float64)
 	currentTime := time.Now().Unix()
-	if int64(expTime) > currentTime {
+	if currentTime > int64(expTime) {
 		return errors.New("token has expired")
 	}
 

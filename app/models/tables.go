@@ -235,7 +235,7 @@ func (t *TableDataRequest) GetFarmerRequests(farmerAccess FarmerAccessList, peri
 		bson.E{Key: "$and", Value: bson.A{
 			bson.D{
 				bson.E{Key: "farmer.id", Value: farmerAccess.Farmer.ID},
-				bson.E{Key: "team.id", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
+				// bson.E{Key: "team.id", Value: bson.D{{Key: "$in", Value: farmerAccess.Teams}}},
 				bson.E{Key: "status", Value: status},
 				bson.E{Key: "dateCreated", Value: bson.M{"$gte": period.StartDate.Unix()}},
 				bson.E{Key: "dateCreated", Value: bson.M{"$lte": period.EndDate.Unix()}},
@@ -486,7 +486,7 @@ func (a EmployeePipeline) FarmerPipeline(period Period) (matchStage primitive.D,
 	groupStage = bson.D{
 		{Key: "$group", Value: bson.D{
 			{Key: "_id", Value: "$farmer"},
-			{Key: "totalSum", Value: bson.D{
+			{Key: "total", Value: bson.D{
 				{Key: "$sum", Value: "$baseTotal"},
 			}},
 			{Key: "price", Value: bson.D{

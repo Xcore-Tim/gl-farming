@@ -8,10 +8,8 @@ import (
 	"gl-farming/app/controllers"
 	"gl-farming/app/services"
 	"gl-farming/database"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	_ "gl-farming/docs"
 
@@ -31,6 +29,7 @@ func main() {
 	ctx := context.TODO()
 
 	connectionAddress := mongoParams.GetConnectionString()
+	// connectionAddress := mongoParams.TestAddress
 	mongoConnection := options.Client().ApplyURI(connectionAddress)
 	client, err := mongo.Connect(ctx, mongoConnection)
 	defer client.Disconnect(ctx)
@@ -74,44 +73,11 @@ func main() {
 
 }
 
-func checkRoot(c echo.Context) error {
-	curDir, _ := os.Getwd()
-	files, err := ioutil.ReadDir(curDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
-		c.String(http.StatusAccepted, file.Name()+"\n")
-	}
-
-	return c.String(http.StatusAccepted, "complete")
-
-}
-
-func checkRootFiles(c echo.Context) error {
-	curDir, _ := os.Getwd()
-	files, err := ioutil.ReadDir(curDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
-		c.String(http.StatusAccepted, file.Name()+"\n")
-	}
-
-	return c.String(http.StatusAccepted, "complete")
-
-}
-
 func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 
 	root := e.Group("/v2")
 	root.GET("/swagger/*", echoSwagger.WrapHandler)
 	root.GET("/", appControllers.Files.DownloadPage)
-	root.GET("/checkRoot", checkRoot)
 
 	auth := root.Group("/auth")
 	auth.POST("/login", appControllers.UID.Login)
@@ -151,6 +117,7 @@ func SetRoutes(e *echo.Echo, appControllers controllers.AppControllers) {
 	tableDataGet := tableData.Group("/get")
 	tableDataGet.GET("", appControllers.Tables.Get)
 	tableDataGet.GET("/all", appControllers.Tables.GetAll)
+	tableDataGet.GET("/check", appControllers.Tables.GetCheck)
 	tableDataAggregate := tableData.Group("/aggregate")
 	tableDataAggregate.GET("/farmers", appControllers.Tables.FarmerPipeline)
 	tableDataAggregate.GET("/buyers", appControllers.Tables.BuyerPipiline)

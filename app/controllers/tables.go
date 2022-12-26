@@ -63,6 +63,43 @@ func (ctrl TableController) Get(c echo.Context) error {
 	return c.JSON(http.StatusOK, tableData.DataSlice)
 }
 
+func (ctrl TableController) GetCheck(c echo.Context) error {
+
+	// uid, err := ctrl.Services.UID.GetUID(c)
+	// if err != nil {
+	// 	return c.String(http.StatusBadRequest, err.Error())
+	// }
+	var uid models.UID
+	if err := c.Bind(&uid); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	var period models.Period
+	period.StartISO = c.QueryParam("startDate")
+	period.EndISO = c.QueryParam("endDate")
+	period.Convert()
+
+	var tableData models.TableDataRequest
+
+	status, _ := strconv.Atoi(c.QueryParam("status"))
+
+	var err error
+	switch uid.RoleID {
+	case 2, 3, 4, 7:
+		tableData, err = ctrl.getBuyerRequests(c, uid, period, status)
+	case 6:
+		tableData, err = ctrl.getFarmerRequests(c, uid, period, status)
+	case 5:
+		tableData, err = ctrl.getTlfRequests(c, uid, period, status)
+	}
+
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, tableData.DataSlice)
+}
+
 // GetTeamleadTables godoc
 // @Summary      Get account requests by period and employee
 // @Description  returns all account requests by period and employee

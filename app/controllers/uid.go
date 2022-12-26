@@ -37,7 +37,7 @@ func (ctrl UIDController) Login(c echo.Context) error {
 func (ctrl UIDController) Check(c echo.Context) error {
 
 	if err := ctrl.Service.Check(c); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.String(http.StatusUnauthorized, err.Error())
 	}
 	return c.String(http.StatusOK, "success")
 }
