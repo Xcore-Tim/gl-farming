@@ -353,8 +353,10 @@ func (ctrl AccountRequestController) setCurrency(c echo.Context, accountRequest 
 		accountRequest.BaseRate = currencyRates[accountRequest.BaseCurrency.ISO]
 	}
 
-	accountRequest.CrossRate = (accountRequest.Rate / accountRequest.BaseRate)
-	accountRequest.CrossRate = helper.RoundFloat(accountRequest.CrossRate, 2)
+	if accountRequest.BaseRate != 0 {
+		accountRequest.CrossRate = (accountRequest.Rate / accountRequest.BaseRate)
+		accountRequest.CrossRate = helper.RoundFloat(accountRequest.CrossRate, 2)
+	}
 
 	accountRequest.BasePrice = accountRequest.CrossRate * accountRequest.Price
 	accountRequest.BasePrice = helper.RoundFloat(accountRequest.BasePrice, 2)
